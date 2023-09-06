@@ -1,71 +1,74 @@
 <script>
   import axios from "axios";
   import { onMount } from "svelte";
-  // import {push} from "svelte-spa-router";
+  import { roomStore } from "../stores/hotelStore";
   import BaseLayout from "../layouts/baseLayout.svelte";
 
   // const HOTEL_API_URI = "http://localhost:8003/ap1/v1";
 
-  let rooms = [];
+  // @ts-ignore
+  let roomTypes = [];
   let isErr = false;
   let errMsg = "";
-
+  
   onMount(async () => {
     // let authToken = localStorage.getItem("authToken");
     const roomsFetchResponse = await axios.get("/hotel/rooms");
     console.log({ allRooms: roomsFetchResponse.data.data.rooms });
-    rooms = roomsFetchResponse.data.data.rooms;
+    let allRooms = roomsFetchResponse.data.data.rooms;
+    // rooms = roomsFetchResponse.data.data.rooms;
+    // @ts-ignore
+    roomStore.update((currentData) => [...allRooms]);
+
+    const roomTypesFetchResponse = await axios.get("/hotel/roomtypes");
+    console.log({ allRoomTypes: roomTypesFetchResponse.data.data.roomTypes });
+    roomTypes = roomTypesFetchResponse.data.data.roomTypes;
   });
 
   let roomNumber = "";
+  let roomTypeSelected = "";
 
-  $: rooms;
+  // @ts-ignore
+ // @ts-ignore
+   $: roomTypes;
 
   $: submit = async () => {
     console.log({
       roomNumber,
+      roomTypeSelected,
     });
 
-    const response = await axios.post("/hotel/bookings", {
-      roomNumber,
-    });
+    if (roomNumber === "") {
+      isErr = true;
+      errMsg = "Please enter a room number!";
+      return
+    }
 
-    // if (response.response.status === 500 || response.response.status === 404) {
-    //   let resData = await response.response.data.data;
-    //   console.log({ resData });
-    //   isErr = true;
-    //   errMsg = resData.messsage;
-    // }
+    const response = await axios.post(`/hotel/rooms/${roomTypeSelected}`, {
+      number: roomNumber.toUpperCase(),
+    });
 
     let resData;
 
-    console.log({ response });
+    // @ts-ignore
+    if (response.name) {
+      resData = await response.response.data.data;
+      console.log({ resData });
+      isErr = true;
+      errMsg = resData.message;
+      return
+    }
 
-    // switch (response.response.status) {
-    //   case 500:
-    //     resData = await response.response.data.data;
-    //     console.log({ response, resData });
-    //     isErr = true;
-    //     errMsg = resData.message;
-    //     break;
-
-    //   case 404:
-    //     resData = await response.response.data.data;
-    //     console.log({ response, resData });
-    //     isErr = true;
-    //     errMsg = resData.message;
-    //     console.log({ errMsg });
-
-    //   default:
-    //     break;
-    // }
-
-    if (response.status === 201) {
+    if (response.status === 200) {
       console.log({ resData: await response.data.data });
+      let room = await response.data.data;
 
-      rooms.push({ roomNumber });
+      roomStore.update((currentData) => {
+        return [...currentData, room];
+      });
 
       roomNumber = "";
+      roomTypeSelected = "";
     }
   };
 </script>
@@ -104,7 +107,24 @@
                   id="number"
                   autocomplete="off"
                   bind:value={roomNumber}
+                  on:focus={() => isErr = false}
                 />
+              </div>
+              <div class="form-group">
+                <label for="roomType">Room Type:</label>
+                <select
+                  class="w-100 form-control"
+                  bind:value={roomTypeSelected}
+                  required
+                >
+                  {#each roomTypes as rt}
+                    {#if rt.roomType === "single"}
+                      <option value={rt._id}>{rt.roomType}</option>
+                    {:else if rt.roomType === "double"}
+                      <option value={rt._id}>{rt.roomType}</option>
+                    {/if}
+                  {/each}
+                </select>
               </div>
               <hr />
               <input
@@ -140,7 +160,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  {#each rooms as room}
+                  {#each $roomStore as room}
                     <tr>
                       <td>{room._id}</td>
                       <td>{room.number}</td>

@@ -2,26 +2,26 @@
   import axios from "axios";
   import { onMount } from "svelte";
   import { roomStore } from "../stores/hotelStore";
+  import { axiosInstance } from "../interceptors/axios";
   import BaseLayout from "../layouts/baseLayout.svelte";
-
-  // const HOTEL_API_URI = "http://localhost:8003/ap1/v1";
+  import Toast from "../components/Toast.svelte";
+  import { link } from "svelte-spa-router";
 
   // @ts-ignore
   let roomTypes = [];
-  let isErr = false;
-  let errMsg = "";
-  
-  onMount(async () => {
-    // let authToken = localStorage.getItem("authToken");
-    const roomsFetchResponse = await axios.get("/hotel/rooms");
-    console.log({ allRooms: roomsFetchResponse.data.data.rooms });
-    let allRooms = roomsFetchResponse.data.data.rooms;
-    // rooms = roomsFetchResponse.data.data.rooms;
-    // @ts-ignore
-    roomStore.update((currentData) => [...allRooms]);
+  let numEntries = $roomStore.length;
+  let toastProps = {
+    isErr: false,
+    isSucc: false,
+    toastMsg: "",
+  };
 
-    const roomTypesFetchResponse = await axios.get("/hotel/roomtypes");
-    console.log({ allRoomTypes: roomTypesFetchResponse.data.data.roomTypes });
+  onMount(async () => {
+    const roomsFetchResponse = await axiosInstance.get("/hotel/rooms");
+    let allRooms = roomsFetchResponse.data.data.rooms;
+    roomStore.update(() => [...allRooms]);
+
+    const roomTypesFetchResponse = await axiosInstance.get("/hotel/roomtypes");
     roomTypes = roomTypesFetchResponse.data.data.roomTypes;
   });
 
@@ -29,39 +29,54 @@
   let roomTypeSelected = "";
 
   // @ts-ignore
- // @ts-ignore
-   $: roomTypes;
+  $: roomTypes;
 
   $: submit = async () => {
-    console.log({
-      roomNumber,
-      roomTypeSelected,
-    });
-
     if (roomNumber === "") {
-      isErr = true;
-      errMsg = "Please enter a room number!";
-      return
+      toastProps = {
+        isErr: true,
+        isSucc: false,
+        toastMsg: "Please enter a room number!",
+      };
+      return;
     }
 
-    const response = await axios.post(`/hotel/rooms/${roomTypeSelected}`, {
-      number: roomNumber.toUpperCase(),
-    });
+    if (roomTypeSelected === "") {
+      toastProps = {
+        isErr: true,
+        isSucc: false,
+        toastMsg: "Please enter a room type!",
+      };
+      return;
+    }
 
-    let resData;
+    const response = await axiosInstance.post(
+      `/hotel/rooms/${roomTypeSelected}`,
+      {
+        number: roomNumber.toUpperCase(),
+      }
+    );
 
     // @ts-ignore
     if (response.name) {
-      resData = await response.response.data.data;
-      console.log({ resData });
-      isErr = true;
-      errMsg = resData.message;
-      return
+      let resData = await response.response.data.data;
+      toastProps = {
+        isErr: true,
+        isSucc: false,
+        toastMsg: resData.message,
+      };
+      return;
     }
 
     if (response.status === 200) {
       console.log({ resData: await response.data.data });
       let room = await response.data.data;
+
+      toastProps = {
+        isErr: false,
+        isSucc: true,
+        toastMsg: `Room number ${room.number} created successfully!`,
+      };
 
       roomStore.update((currentData) => {
         return [...currentData, room];
@@ -85,18 +100,14 @@
     </div>
 
     <!-- Add Users Form -->
-    <div class="row">
-      <div class="col-xl-12 col-md-12 mb-4">
-        <div class="card shadow">
-          <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Add Rooms</h6>
-            <center>
-              {#if isErr}
-                <p class="text-danger"><b>{errMsg}</b></p>
-              {/if}
-            </center>
-          </div>
-          <div class="card-body">
+    <Toast {toastProps} />
+    <div class="card shadow mb-4">
+      <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Add Rooms</h6>
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <div class="col-xl-12 col-md-12 mb-4">
             <form on:submit|preventDefault={submit} autocomplete="off">
               <div class="form-group">
                 <label for="number">Room Number:</label>
@@ -107,7 +118,7 @@
                   id="number"
                   autocomplete="off"
                   bind:value={roomNumber}
-                  on:focus={() => isErr = false}
+                  on:focus={() => (toastProps.isErr = false)}
                 />
               </div>
               <div class="form-group">
@@ -115,7 +126,7 @@
                 <select
                   class="w-100 form-control"
                   bind:value={roomTypeSelected}
-                  required
+                  on:focus={() => (toastProps.isErr = false)}
                 >
                   {#each roomTypes as rt}
                     {#if rt.roomType === "single"}
@@ -136,40 +147,142 @@
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- All Users Table -->
-      <div class="col-xl-12 col-md-12 mb-4">
-        <div class="card shadow mb-4">
-          <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">All Rooms</h6>
-          </div>
-          <div class="card-body">
-            <div class="table-responsive">
-              <table
-                class="table table-bordered"
-                id="dataTable"
-                width="100%"
-                cellspacing="0"
-              >
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Room Number</th>
-                    <th>Occupied</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {#each $roomStore as room}
+    <!-- All Users Table -->
+    <div class="card shadow mb-4">
+      <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">All Rooms</h6>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <div class="dataTables_wrapper dt-bootstrap4">
+            <div class="row">
+              <div class="col-sm-12 col-md-6">
+                <div class="dataTables_length">
+                  Show:
+                  <label>
+                    <select
+                      name="dataTable_length"
+                      aria-controls="dataTable"
+                      class="custom-select custom-select-sm form-control form-control-sm"
+                    >
+                      <option value="{numEntries}">{numEntries}</option>
+                    </select>
+                  </label>
+                  entries
+                </div>
+              </div>
+              <div class="col-sm-6 px-3">
+                <div class="dataTables_length">
+                  <input
+                    type="search"
+                    class="form-control form-control-sm"
+                    placeholder="Search..."
+                    aria-controls="dataTable"
+                  />
+                </div>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-12">
+                <table
+                  class="table table-bordered"
+                  id="dataTable"
+                  width="100%"
+                  cellspacing="0"
+                >
+                  <thead>
                     <tr>
-                      <td>{room._id}</td>
-                      <td>{room.number}</td>
-                      <td>{room.isBooked}</td>
-                      <td>Edit</td>
+                      <th>ID</th>
+                      <th>Room Number</th>
+                      <th>Occupied</th>
+                      <th>Actions</th>
                     </tr>
-                  {/each}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {#each $roomStore as room}
+                      <tr>
+                        <td>{room._id}</td>
+                        <td>{room.number}</td>
+                        <td>{room.isBooked}</td>
+                        <td>
+                          <a
+                            class="small"
+                            href="/#/edit-rooms/{room._id}"
+                            use:link
+                          >
+                            Edit
+                          </a>
+                        </td>
+                      </tr>
+                    {/each}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="row">
+              <div class="col-sm-12 col-md-5">
+                <div
+                  class="dataTables_info"
+                  id="dataTable_info"
+                  role="status"
+                  aria-live="polite"
+                >
+                  Showing page 1 to 50 of {$roomStore.length} entries
+                </div>
+              </div>
+              <div class="col-sm-12 col-md-7">
+                <div
+                  class="dataTables_paginate paging_simple_numbers"
+                  id="dataTable_paginate"
+                >
+                  <ul class="pagination">
+                    <li
+                      class="paginate_button page-item previous disabled"
+                      id="dataTable_previous"
+                    >
+                      <a
+                        href="/#/"
+                        aria-controls="dataTable"
+                        data-dt-idx="0"
+                        tabindex="0"
+                        class="page-link">Previous</a
+                      >
+                    </li>
+                    <li class="paginate_button page-item active">
+                      <a
+                        href="/#/"
+                        aria-controls="dataTable"
+                        data-dt-idx="1"
+                        tabindex="0"
+                        class="page-link">1</a
+                      >
+                    </li>
+                    <li class="paginate_button page-item">
+                      <a
+                        href="/#/"
+                        aria-controls="dataTable"
+                        data-dt-idx="2"
+                        tabindex="0"
+                        class="page-link">2</a
+                      >
+                    </li>
+                    <li
+                      class="paginate_button page-item next"
+                      id="dataTable_next"
+                    >
+                      <a
+                        href="/#/"
+                        aria-controls="dataTable"
+                        data-dt-idx="3"
+                        tabindex="0"
+                        class="page-link">Next</a
+                      >
+                    </li>
+                  </ul>
+                </div>
+              </div>
             </div>
           </div>
         </div>

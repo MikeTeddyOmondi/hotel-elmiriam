@@ -1,7 +1,8 @@
 <script>
   import axios from "axios";
   import { onMount } from "svelte";
-  import { push } from "svelte-spa-router";
+  import { link, push } from "svelte-spa-router";
+  import { axiosInstance } from "../interceptors/axios";
 
   let username = "";
   let istoggledAdmin = false;
@@ -10,7 +11,7 @@
   let istoggledSettings = false;
 
   onMount(async () => {
-    const response = await axios.get("/auth/user");
+    const response = await axiosInstance.get("/auth/user");
 
     if (response.status === 200) {
       username = response.data.data.user.username;
@@ -20,7 +21,7 @@
   });
 
   $: logout = async () => {
-    await axios.post("/auth/logout", {}, { withCredentials: true });
+    await axiosInstance.post("/auth/logout", {});
 
     axios.defaults.headers.common["Authorization"] = "";
     localStorage.removeItem("authToken");
@@ -226,7 +227,7 @@
           aria-expanded="true"
           aria-controls="collapsePages"
         >
-          <i class="fas fa-fw fa-folder" />
+          <i class="fas fa-fw fa-cog" />
           <span>Settings</span>
         </a>
         {#if istoggledSettings}
@@ -544,7 +545,7 @@
                 aria-labelledby="userDropdown"
               >
                 <!-- svelte-ignore a11y-invalid-attribute -->
-                <a class="dropdown-item" href="/#/">
+                <a class="dropdown-item" href="/#/profiles/{username}" use:link>
                   <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400" />
                   Profile
                 </a>
@@ -588,7 +589,11 @@
       <footer class="sticky-footer bg-white">
         <div class="container my-auto">
           <div class="copyright text-center my-auto">
-            <span>Copyright &copy; Hotel Elmiriam {new Date(Date.now()).getFullYear()}</span>
+            <span
+              >Copyright &copy; Hotel Elmiriam {new Date(
+                Date.now()
+              ).getFullYear()}</span
+            >
           </div>
         </div>
       </footer>

@@ -2,6 +2,7 @@
   import axios from "axios";
   import { onMount } from "svelte";
   // import {push} from "svelte-spa-router";
+  import { axiosInstance } from "../interceptors/axios";
   import BaseLayout from "../layouts/baseLayout.svelte";
 
   // const HOTEL_API_URI = "http://localhost:8003/ap1/v1";
@@ -12,13 +13,10 @@
   let errMsg = "";
 
   onMount(async () => {
-    // let authToken = localStorage.getItem("authToken");
-    const customersFetchResponse = await axios.get("/hotel/customers");
-    console.log({ allCustomers: customersFetchResponse.data.data });
+    const customersFetchResponse = await axiosInstance.get("/hotel/customers");
     customers = customersFetchResponse.data.data.customers;
 
-    const bookingsFetchResponse = await axios.get("/hotel/bookings");
-    console.log({ allBookings: bookingsFetchResponse.data.data });
+    const bookingsFetchResponse = await axiosInstance.get("/hotel/bookings");
     bookings = bookingsFetchResponse.data.data.bookings;
   });
 
@@ -128,14 +126,14 @@
             </center>
           </div>
           <div class="card-body">
-            <form
-              on:submit|preventDefault={submit}
-              on:focus={() => (isErr = false)}
-              autocomplete="off"
-            >
+            <form on:submit|preventDefault={submit} autocomplete="off">
               <div class="form-group">
                 <label for="customerId">Customer ID Number:</label>
-                <select class="w-100 form-control" bind:value={customerId}>
+                <select
+                  class="w-100 form-control"
+                  bind:value={customerId}
+                  on:focus={() => (isErr = false)}
+                >
                   {#each customers as customer}
                     <option value={customer.id_number}
                       >{customer.id_number}</option
@@ -152,6 +150,7 @@
                   id="numberAdults"
                   autocomplete="off"
                   bind:value={numberAdults}
+                  on:focus={() => (isErr = false)}
                 />
               </div>
               <div class="form-group">
@@ -163,6 +162,7 @@
                   id="numberKids"
                   autocomplete="off"
                   bind:value={numberKids}
+                  on:focus={() => (isErr = false)}
                 />
               </div>
               <div class="form-group">
@@ -182,6 +182,7 @@
                   autocomplete="off"
                   placeholder="MM/DD/YYYY"
                   bind:value={checkInDate}
+                  on:focus={() => (isErr = false)}
                 />
               </div>
               <div class="form-group">
@@ -194,6 +195,7 @@
                   autocomplete="off"
                   placeholder="MM/DD/YYYY"
                   bind:value={checkOutDate}
+                  on:focus={() => (isErr = false)}
                 />
               </div>
               <hr />

@@ -133,9 +133,10 @@
       </button>
     </div>
 
-    <!-- Add Users Form -->
     <Toast {toastProps} />
+
     <div class="row">
+      <!-- Add Users Form -->
       <div class="col-xl-12 col-md-12 mb-4">
         <div class="card shadow">
           <div class="card-header py-3">

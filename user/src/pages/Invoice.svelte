@@ -189,7 +189,7 @@
           <div>
             <button type="button" class="btn btn-info m-2">
               <b><i class="fas fa-paper-plane mr-1" /></b>
-              Sms
+              Send sms
             </button>
           </div>
         </div>
@@ -246,9 +246,9 @@
     border-bottom: 1px solid rgba(0, 0, 0, 0.125);
   }
 
-  a {
+  /* a {
     text-decoration: none !important;
-  }
+  } */
 
   .btn-light {
     color: #333;

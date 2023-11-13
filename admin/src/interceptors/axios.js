@@ -1,12 +1,16 @@
 import axios from "axios";
 
-axios.defaults.baseURL = "http://localhost:8009/api";
-axios.defaults.headers.common["Access-Control-Allow-Origin"] =
-  "http://localhost:3000";
+// axios.defaults.baseURL = "http://localhost:8009/api";
+// axios.defaults.withCredentials = true;  
+
+export const axiosInstance = axios.create({
+  baseURL: "http://localhost:8009/api", 
+  // withCredentials: true
+})
 
 let refresh = false;
 
-axios.interceptors.request.use(
+axiosInstance.interceptors.request.use(
   (config) => {
     config.headers.Authorization = `Bearer ${localStorage.getItem(
       "authToken"
@@ -19,7 +23,7 @@ axios.interceptors.request.use(
   }
 );
 
-axios.interceptors.response.use(
+axiosInstance.interceptors.response.use(
   (resp) => resp,
   async (error) => {
     // console.log({ responseError: error });
@@ -27,7 +31,7 @@ axios.interceptors.response.use(
     if (error.response.status === 401 && !refresh) {
       refresh = true;
 
-      const response = await axios.post(
+      const response = await axiosInstance.post(
         "/auth/refresh",
         {},
         {

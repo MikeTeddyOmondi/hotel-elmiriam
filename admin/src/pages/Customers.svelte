@@ -3,6 +3,7 @@
   import { onMount } from "svelte";
   // import {push} from "svelte-spa-router";
   import BaseLayout from "../layouts/baseLayout.svelte";
+  import { axiosInstance } from "../interceptors/axios";
 
   // const HOTEL_API_URI = "http://localhost:8003/ap1/v1";
 
@@ -12,7 +13,7 @@
 
   onMount(async () => {
     // let authToken = localStorage.getItem("authToken");
-    const response = await axios.get("/hotel/customers");
+    const response = await axiosInstance.get("/hotel/customers");
     console.log({ allCustomers: response.data.data });
     customers = response.data.data.customers;
   });
@@ -34,7 +35,7 @@
       phone_number,
     });
 
-    const response = await axios.post("/hotel/customers", {
+    const response = await axiosInstance.post("/hotel/customers", {
       firstname,
       lastname,
       email,

@@ -1,10 +1,9 @@
 <script>
   import axios from "axios";
   import { onMount } from "svelte";
-  // import {push} from "svelte-spa-router";
+  import { link } from "svelte-spa-router";
   import BaseLayout from "../layouts/baseLayout.svelte";
-
-  // const HOTEL_API_URI = "http://localhost:8003/ap1/v1";
+  import { axiosInstance } from "../interceptors/axios";
 
   let roomtypes = [];
   let isErr = false;
@@ -12,8 +11,7 @@
 
   onMount(async () => {
     // let authToken = localStorage.getItem("authToken");
-    const roomtypesFetchResponse = await axios.get("/hotel/roomtypes");
-    console.log({ allRoomTypes: roomtypesFetchResponse.data.data });
+    const roomtypesFetchResponse = await axiosInstance.get("/hotel/roomtypes");
     roomtypes = [...roomtypesFetchResponse.data.data.roomTypes];
   });
 
@@ -34,7 +32,7 @@
       roomType,
     });
 
-    const response = await axios.post("/hotel/rooms/types", {
+    const response = await axiosInstance.post("/hotel/rooms/types", {
       title,
       description,
       rate,
@@ -42,35 +40,9 @@
       roomType,
     });
 
-    // if (response.response.status === 500 || response.response.status === 404) {
-    //   let resData = await response.response.data.data;
-    //   console.log({ resData });
-    //   isErr = true;
-    //   errMsg = resData.messsage;
-    // }
-
     let resData;
 
     console.log({ response });
-
-    // switch (response.response.status) {
-    //   case 500:
-    //     resData = await response.response.data.data;
-    //     console.log({ response, resData });
-    //     isErr = true;
-    //     errMsg = resData.message;
-    //     break;
-
-    //   case 404:
-    //     resData = await response.response.data.data;
-    //     console.log({ response, resData });
-    //     isErr = true;
-    //     errMsg = resData.message;
-    //     console.log({ errMsg });
-
-    //   default:
-    //     break;
-    // }
 
     if (response.status === 201) {
       console.log({ resData: await response.data.data });

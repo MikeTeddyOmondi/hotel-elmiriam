@@ -17,9 +17,10 @@
     if (response.status === 200) {
       axios.defaults.headers.common[
         "Authorization"
-      ] = `Bearer ${response.data.data.token}`;
+      ] = `Bearer ${response.data.data.accessToken}`;
 
-      localStorage.setItem("authToken", response.data.data.token);
+      localStorage.setItem("authToken", response.data.data.accessToken);
+      localStorage.setItem("X-Refresh-Token", response.data.data.refreshToken);
 
       await push("/");
     }

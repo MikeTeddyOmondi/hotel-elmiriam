@@ -274,6 +274,11 @@
                   {/each}
                 </tbody>
               </table>
+              {#if $bookingStore.length === 0}
+                <center>
+                  <span>No data</span>
+                </center>
+              {/if}
             </div>
           </div>
         </div>

@@ -26,7 +26,7 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (resp) => resp,
   async (error) => {
-    // console.log({ responseError: error });
+    console.log({ responseError: error });
 
     if (error.response.status === 401 && !refresh) {
       refresh = true;
@@ -35,7 +35,10 @@ axiosInstance.interceptors.response.use(
         "/auth/refresh",
         {},
         {
-          withCredentials: true,
+          // withCredentials: true,
+          headers: {
+            "X-Refresh-Token": `${localStorage.getItem("X-Refresh-Token")}`,
+          },
         }
       );
       console.log({ response });

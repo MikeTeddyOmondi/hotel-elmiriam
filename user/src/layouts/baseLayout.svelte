@@ -24,6 +24,7 @@
 
     axios.defaults.headers.common["Authorization"] = "";
     localStorage.removeItem("authToken");
+    localStorage.removeItem("x-refresh-token");
 
     await push("/login");
   };

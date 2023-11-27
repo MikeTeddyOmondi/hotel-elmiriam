@@ -12,10 +12,6 @@
     toastMsg: "",
   };
 
-  let customers = [];
-  let isErr = false;
-  let errMsg = "";
-
   onMount(async () => {
     const response = await axiosInstance.get("/hotel/customers");
     console.log({ allCustomers: response.data.data });
@@ -28,8 +24,6 @@
     email = "",
     id_number = "",
     phone_number = "";
-
-  $: customers;
 
   $: submit = async () => {
     console.log({
@@ -151,11 +145,6 @@
         <div class="card shadow">
           <div class="card-header py-3">
             <h6 class="m-0 font-weight-bold text-primary">Add Customers</h6>
-            <center>
-              {#if isErr}
-                <p class="text-danger"><b>{errMsg}</b></p>
-              {/if}
-            </center>
           </div>
           <div class="card-body">
             <form on:submit|preventDefault={submit} autocomplete="off">

@@ -348,7 +348,7 @@
         <!-- End of Topbar -->
 
         <!-- Begin Page Content -->
-        <ul class="nav nav-tabs nav-fill mb-4 ">
+        <ul class="nav nav-tabs nav-fill mb-4 no-print">
           <li class="nav-item">
             <a class="nav-link {url === '#/' ? 'active' : ''}" href="/" use:link
               >Overview</a
@@ -447,3 +447,11 @@
     </div>
   </div>
 </div>
+
+<style>
+  @media print {
+    .no-print {
+      display: none;
+    }
+  }
+</style>

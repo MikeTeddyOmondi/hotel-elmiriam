@@ -161,7 +161,14 @@
                     <span class="text-muted">Invoice To:</span>
                     <ul class="list list-unstyled mb-0">
                       <li>
-                        <h5 class="my-2">Name: {$bookingDetails.customer}</h5>
+                        <h5 class="my-2">
+                          {capitalizeFirstLetter(
+                            String($bookingDetails.customer?.firstname)
+                          )}
+                          {capitalizeFirstLetter(
+                            String($bookingDetails.customer?.lastname)
+                          )}
+                        </h5>
                       </li>
                       <!-- <li>
                     <span class="font-weight-semibold"
@@ -169,7 +176,7 @@
                     >
                   </li>
                   <li>Gurung Street</li> -->
-                      <li>Email: {$bookingDetails.customer}</li>
+                      <li>Email: {$bookingDetails.customer?.email}</li>
                     </ul>
                   </div>
 
@@ -350,7 +357,7 @@
             </div>
             <div>
               <button type="button" class="btn btn-success m-2">
-                <b><i class="fas fa-paper-plane mr-1" /></b>
+                <b><i class="fas fa-envelope mr-1" /></b>
                 Email invoice
               </button>
             </div>

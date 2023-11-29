@@ -1,5 +1,4 @@
 <script>
-  import axios from "axios";
   import { onMount } from "svelte";
   import { link } from "svelte-spa-router";
   import { bookingStore, customerStore } from "../stores/hotelStore";
@@ -14,13 +13,23 @@
   };
 
   onMount(async () => {
-    const customersFetchResponse = await axiosInstance.get("/hotel/customers");
-    let customers = customersFetchResponse.data.data.customers;
-    customerStore.update(() => [...customers]);
+    try {
+      const [customersFetchResponse, bookingsFetchResponse] = await Promise.all(
+        [
+          axiosInstance.get("/hotel/customers"),
+          axiosInstance.get("/hotel/bookings"),
+        ]
+      );
 
-    const bookingsFetchResponse = await axiosInstance.get("/hotel/bookings");
-    let bookings = bookingsFetchResponse.data.data.bookings;
-    bookingStore.update(() => [...bookings]);
+      let customers = customersFetchResponse.data.data.customers;
+      customerStore.update(() => [...customers]);
+
+      let bookings = bookingsFetchResponse.data.data.bookings;
+      console.log({ bookings });
+      bookingStore.update(() => [...bookings]);
+    } catch (e) {
+      console.log(e.message);
+    }
   });
 
   let roomType = "";
@@ -28,7 +37,8 @@
   let numberAdults = "",
     numberKids = "",
     checkInDate = "",
-    checkOutDate = "";
+    checkOutDate = "",
+    paymentMethod = "";
 
   $: submit = async () => {
     console.log({
@@ -38,6 +48,7 @@
       numberKids,
       checkInDate,
       checkOutDate,
+      paymentMethod,
     });
     if (
       customerId === "" ||
@@ -45,7 +56,8 @@
       numberAdults === "" ||
       numberKids === "" ||
       checkInDate === "" ||
-      checkOutDate === ""
+      checkOutDate === "" ||
+      paymentMethod == ""
     ) {
       toastProps = {
         isErr: true,
@@ -69,11 +81,14 @@
       numberKids,
       checkInDate,
       checkOutDate,
+      paymentMethod,
     });
 
     // @ts-ignore
     if (response.name) {
+      // @ts-ignore
       let resData = await response.response.data.data;
+      console.log({ resData });
       toastProps = {
         isErr: true,
         isSucc: false,
@@ -92,32 +107,46 @@
     console.log({ response });
 
     if (response.status === 201) {
-      console.log({ booking: await response.data.data });
-      let responseDetails = await response.data;
-      // let details = await response.data.data;
+      try {
+        let res = await response.data;
+        const bookingsFetchResponse =
+          await axiosInstance.get("/hotel/bookings");
 
-      toastProps = {
-        isErr: false,
-        isSucc: true,
-        toastMsg: `${responseDetails.message}!`,
-      };
+        let bookings = bookingsFetchResponse.data.data.bookings;
+        console.log({ bookings });
+        bookingStore.update(() => [...bookings]);
 
-      numberAdults = "";
-      numberKids = "";
-      checkInDate = "";
-      checkOutDate = "";
-      roomType = "";
-      customerId = "";
-
-      setTimeout(() => {
         toastProps = {
           isErr: false,
-          isSucc: false,
-          toastMsg: "",
+          isSucc: true,
+          toastMsg: `${res.message}!`,
         };
-      }, 5000);
 
-      return;
+        numberAdults = "";
+        numberKids = "";
+        checkInDate = "";
+        checkOutDate = "";
+        roomType = "";
+        customerId = "";
+        paymentMethod = "";
+
+        setTimeout(() => {
+          toastProps = {
+            isErr: false,
+            isSucc: false,
+            toastMsg: "",
+          };
+        }, 5000);
+
+        return;
+      } catch (e) {
+        console.log(e.message);
+        toastProps = {
+          isErr: true,
+          isSucc: false,
+          toastMsg: `${e.message}!`,
+        };
+      }
     }
   };
 </script>
@@ -127,10 +156,13 @@
     <!-- Page Heading -->
     <div class="d-sm-flex align-items-center justify-content-between mb-4">
       <h1 class="h3 mb-0 text-gray-800">Hotel</h1>
-      <button class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
-        <i class="fas fa-download fa-sm text-white-50" />
-        Generate Report
-      </button>
+      <a
+        href="/#/customers"
+        class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm"
+      >
+        <i class="fas fa-plus-circle fa-sm text-white-50" />
+        New Customer
+      </a>
     </div>
 
     <Toast {toastProps} />
@@ -198,6 +230,7 @@
                   id="checkInDate"
                   autocomplete="off"
                   placeholder="MM/DD/YYYY"
+                  pattern="\d{2}-\d{2}-\d{4}"
                   bind:value={checkInDate}
                   on:focus={() => (toastProps.isErr = false)}
                 />
@@ -211,9 +244,18 @@
                   id="checkOutDate"
                   autocomplete="off"
                   placeholder="MM/DD/YYYY"
+                  pattern="\d{2}-\d{2}-\d{4}"
                   bind:value={checkOutDate}
                   on:focus={() => (toastProps.isErr = false)}
                 />
+              </div>
+              <div class="form-group">
+                <label for="roomType">Payment Method:</label>
+                <select class="w-100 form-control" bind:value={paymentMethod}>
+                  <option value="cash">Cash</option>
+                  <option value="mpesa">Mpesa</option>
+                  <option value="card">Card</option>
+                </select>
               </div>
               <hr />
               <input

@@ -1,21 +1,22 @@
 <script>
-  import axios from "axios";
   import { onMount } from "svelte";
-  // import {push} from "svelte-spa-router";
-  import BaseLayout from "../layouts/baseLayout.svelte";
+  import { link } from "svelte-spa-router";
   import { axiosInstance } from "../interceptors/axios";
+  import BaseLayout from "../layouts/baseLayout.svelte";
+  import Toast from "../components/Toast.svelte";
+  import { customerStore } from "../stores/hotelStore";
 
-  // const HOTEL_API_URI = "http://localhost:8003/ap1/v1";
-
-  let customers = [];
-  let isErr = false;
-  let errMsg = "";
+  let toastProps = {
+    isErr: false,
+    isSucc: false,
+    toastMsg: "",
+  };
 
   onMount(async () => {
-    // let authToken = localStorage.getItem("authToken");
     const response = await axiosInstance.get("/hotel/customers");
     console.log({ allCustomers: response.data.data });
-    customers = response.data.data.customers;
+    let customers = response.data.data.customers;
+    customerStore.update(() => [...customers]);
   });
 
   let firstname = "",
@@ -23,8 +24,6 @@
     email = "",
     id_number = "",
     phone_number = "";
-
-  $: customers;
 
   $: submit = async () => {
     console.log({
@@ -34,6 +33,27 @@
       id_number,
       phone_number,
     });
+    if (
+      firstname === "" ||
+      lastname === "" ||
+      email === "" ||
+      id_number === "" ||
+      phone_number === ""
+    ) {
+      toastProps = {
+        isErr: true,
+        isSucc: false,
+        toastMsg: "Please enter all the fields!",
+      };
+      setTimeout(() => {
+        toastProps = {
+          isErr: false,
+          isSucc: false,
+          toastMsg: "",
+        };
+      }, 5000);
+      return;
+    }
 
     const response = await axiosInstance.post("/hotel/customers", {
       firstname,
@@ -42,30 +62,66 @@
       id_number,
       phone_number,
     });
-
-    if (response.response.status === 500) {
+    // @ts-ignore
+    if (response.name) {
+      // @ts-ignore
       let resData = await response.response.data.data;
       console.log({ resData });
-      isErr = true;
-      errMsg = resData.messsage;
+      toastProps = {
+        isErr: true,
+        isSucc: false,
+        toastMsg: resData.message,
+      };
+      setTimeout(() => {
+        toastProps = {
+          isErr: false,
+          isSucc: false,
+          toastMsg: "",
+        };
+      }, 5000);
+      return;
     }
 
+    console.log({ response });
+
     if (response.status === 201) {
-      console.log({ resData: await response.data.data });
+      try {
+        // @ts-ignore
+        let responseDetails = await response.data.data;
 
-      customers.push({
-        firstname,
-        lastname,
-        email,
-        id_number,
-        phone_number,
-      });
+        const customersFetchResponse = await axiosInstance.get("/hotel/customers");
+        let customers = customersFetchResponse.data.data.customers;
+        customerStore.update(() => [...customers]);
 
-      firstname = "";
-      lastname = "";
-      email = "";
-      id_number = "";
-      phone_number = "";
+        toastProps = {
+          isErr: false,
+          isSucc: true,
+          toastMsg: `New customer: ${responseDetails.customer} added!`,
+        };
+
+        firstname = "";
+        lastname = "";
+        email = "";
+        id_number = "";
+        phone_number = "";
+
+        setTimeout(() => {
+          toastProps = {
+            isErr: false,
+            isSucc: false,
+            toastMsg: "",
+          };
+        }, 5000);
+
+        return;
+      } catch (e) {
+        console.log(e.message);
+        toastProps = {
+          isErr: true,
+          isSucc: false,
+          toastMsg: `${e.message}!`,
+        };
+      }
     }
   };
 </script>
@@ -81,17 +137,14 @@
       </button>
     </div>
 
+    <Toast {toastProps} />
+
     <!-- Add Users Form -->
     <div class="row">
       <div class="col-xl-12 col-md-12 mb-4">
         <div class="card shadow">
           <div class="card-header py-3">
             <h6 class="m-0 font-weight-bold text-primary">Add Customers</h6>
-            <center>
-              {#if isErr}
-                <p class="text-danger"><b>{errMsg}</b></p>
-              {/if}
-            </center>
           </div>
           <div class="card-body">
             <form on:submit|preventDefault={submit} autocomplete="off">
@@ -186,14 +239,22 @@
                   </tr>
                 </thead>
                 <tbody>
-                  {#each customers as customer}
+                  {#each $customerStore as customer}
                     <tr>
                       <td>{customer.firstname}</td>
                       <td>{customer.lastname}</td>
                       <td>{customer.email}</td>
                       <td>{customer.id_number}</td>
                       <td>{customer.phone_number}</td>
-                      <td>Edit</td>
+                      <td>
+                        <a
+                          class="small"
+                          href="/customer/{customer._id}"
+                          use:link
+                        >
+                          View
+                        </a></td
+                      >
                     </tr>
                   {/each}
                 </tbody>

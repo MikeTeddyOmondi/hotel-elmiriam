@@ -12,7 +12,7 @@
       email,
       password,
     });
-    // console.log({ response });
+    console.log({ response });
 
     if (response.status === 200) {
       axios.defaults.headers.common[
@@ -20,7 +20,7 @@
       ] = `Bearer ${response.data.data.accessToken}`;
 
       localStorage.setItem("authToken", response.data.data.accessToken);
-      localStorage.setItem("X-Refresh-Token", response.data.data.refreshToken);
+      localStorage.setItem("x-refresh-token", response.data.data.refreshToken);
 
       await push("/");
     }

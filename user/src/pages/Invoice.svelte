@@ -78,6 +78,12 @@
 
     html2pdf().set(options).from(elementToPrint).save();
   }
+
+  function initiateMpesaPayment() {}
+
+  function notifyViaEmail() {}
+
+  function notifyViaSMS() {}
 </script>
 
 <BaseLayout>
@@ -192,7 +198,11 @@
 
                       <ul class="list list-unstyled text-right mb-0 ml-auto">
                         <li>
-                          <h5 class="font-weight-semibold my-2">Kes. 7,200</h5>
+                          <h5 class="font-weight-semibold my-2">
+                            Kes. {$bookingDetails.invoiceRef?.totalCost.toLocaleString(
+                              "en-US"
+                            )}
+                          </h5>
                         </li>
                         <li>
                           {#if $bookingDetails.invoiceRef?.status === "pending"}
@@ -350,19 +360,31 @@
         <div class="col-md-12">
           <div class="d-flex flex-row additional-buttons">
             <div>
-              <button type="button" class="btn btn-warning m-2">
+              <button
+                type="button"
+                class="btn btn-warning m-2"
+                on:click={initiateMpesaPayment}
+              >
                 <b><i class="fas fa-cogs mr-1" /></b>
                 Initiate M-pesa Payment
               </button>
             </div>
             <div>
-              <button type="button" class="btn btn-success m-2">
+              <button
+                type="button"
+                class="btn btn-success m-2"
+                on:click={notifyViaEmail}
+              >
                 <b><i class="fas fa-envelope mr-1" /></b>
                 Email invoice
               </button>
             </div>
             <div>
-              <button type="button" class="btn btn-info m-2">
+              <button
+                type="button"
+                class="btn btn-info m-2"
+                on:click={notifyViaSMS}
+              >
                 <b><i class="fas fa-paper-plane mr-1" /></b>
                 Send sms
               </button>

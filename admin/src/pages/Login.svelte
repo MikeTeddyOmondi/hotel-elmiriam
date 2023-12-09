@@ -1,6 +1,6 @@
 <script>
-  import axios from "axios";
-  import { push, link } from "svelte-spa-router";
+  import { push } from "svelte-spa-router";
+  import { link } from "svelte-spa-router";
   import { axiosInstance } from "../interceptors/axios";
   import LoginLayout from "../layouts/loginLayout.svelte";
 
@@ -8,16 +8,25 @@
     password = "";
 
   $: submit = async () => {
-    const response = await axiosInstance.post("/auth/login", {
-      email,
-      password,
-    });
+    const response = await axiosInstance.post(
+      "/auth/login",
+      {
+        email,
+        password,
+      }
+      // {
+      //   headers: {
+      //     // Origin: "http://localhost:8009",
+      //     // "Access-Control-Request-Method": "POST",
+      //     "Access-Control-Allow-Origin": "http://localhost:3000",
+      //   },
+      // }
+    );
     // console.log({ response });
 
     if (response.status === 200) {
-      axios.defaults.headers.common[
-        "Authorization"
-      ] = `Bearer ${response.data.data.token}`;
+      axiosInstance.defaults.headers.common["Authorization"] =
+        `Bearer ${response.data.data.token}`;
 
       localStorage.setItem("authToken", response.data.data.token);
 

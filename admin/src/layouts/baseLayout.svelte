@@ -4,6 +4,7 @@
   import { link, push } from "svelte-spa-router";
   import { axiosInstance } from "../interceptors/axios";
 
+  let url = ``;
   let username = "";
   let istoggledAdmin = false;
   let istoggledStock = false;
@@ -11,6 +12,8 @@
   let istoggledSettings = false;
 
   onMount(async () => {
+    url = window.location.hash;
+
     const response = await axiosInstance.get("/auth/user");
 
     if (response.status === 200) {
@@ -25,6 +28,7 @@
 
     axios.defaults.headers.common["Authorization"] = "";
     localStorage.removeItem("authToken");
+    localStorage.removeItem("x-refresh-token");
 
     await push("/login");
   };
@@ -648,3 +652,11 @@
     </div>
   </div>
 </div>
+
+<style>
+  @media print {
+    .no-print {
+      display: none;
+    }
+  }
+</style>

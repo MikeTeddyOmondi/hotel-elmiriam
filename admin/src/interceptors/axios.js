@@ -26,7 +26,7 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (resp) => resp,
   async (error) => {
-    // console.log({ responseError: error });
+    console.log({ responseError: error });
 
     if (error.response.status === 401 && !refresh) {
       refresh = true;
@@ -35,7 +35,10 @@ axiosInstance.interceptors.response.use(
         "/auth/refresh",
         {},
         {
-          withCredentials: true,
+          // withCredentials: true,
+          headers: {
+            "x-refresh-token": `${localStorage.getItem("x-refresh-token")}`,
+          },
         }
       );
       console.log({ response });
@@ -43,9 +46,9 @@ axiosInstance.interceptors.response.use(
       if (response.status === 200) {
         axios.defaults.headers.common[
           "Authorization"
-        ] = `Bearer ${response.data.data.token}`;
+        ] = `Bearer ${response.data.data.accessToken}`;
 
-        localStorage.setItem("authToken", response.data.data.token);
+        localStorage.setItem("authToken", response.data.data.accessToken);
 
         return axios(error.config);
       }

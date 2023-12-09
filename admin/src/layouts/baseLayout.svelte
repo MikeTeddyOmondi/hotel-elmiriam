@@ -2,7 +2,9 @@
   import axios from "axios";
   import { onMount } from "svelte";
   import { push } from "svelte-spa-router";
+  import { axiosInstance } from "../interceptors/axios";
 
+  let url = ``;
   let username = "";
   let istoggledAdmin = false;
   let istoggledStock = false;
@@ -10,7 +12,9 @@
   let istoggledSettings = false;
 
   onMount(async () => {
-    const response = await axios.get("/auth/user");
+    url = window.location.hash;
+
+    const response = await axiosInstance.get("/auth/user");
 
     if (response.status === 200) {
       username = response.data.data.user.username;
@@ -20,10 +24,11 @@
   });
 
   $: logout = async () => {
-    await axios.post("/auth/logout", {}, { withCredentials: true });
+    await axiosInstance.post("/auth/logout", {});
 
     axios.defaults.headers.common["Authorization"] = "";
     localStorage.removeItem("authToken");
+    localStorage.removeItem("x-refresh-token");
 
     await push("/login");
   };
@@ -588,7 +593,11 @@
       <footer class="sticky-footer bg-white">
         <div class="container my-auto">
           <div class="copyright text-center my-auto">
-            <span>Copyright &copy; Hotel Elmiriam {new Date(Date.now()).getFullYear()}</span>
+            <span
+              >Copyright &copy; Hotel Elmiriam {new Date(
+                Date.now()
+              ).getFullYear()}</span
+            >
           </div>
         </div>
       </footer>
@@ -643,3 +652,11 @@
     </div>
   </div>
 </div>
+
+<style>
+  @media print {
+    .no-print {
+      display: none;
+    }
+  }
+</style>

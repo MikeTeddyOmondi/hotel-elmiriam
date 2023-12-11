@@ -1,12 +1,12 @@
 import axios from "axios";
 
 // axios.defaults.baseURL = "http://localhost:8009/api";
-// axios.defaults.withCredentials = true;  
+// axios.defaults.withCredentials = true;
 
 export const axiosInstance = axios.create({
-  baseURL: "http://localhost:8009/api", 
+  baseURL: "http://localhost:8009/api",
   // withCredentials: true
-})
+});
 
 let refresh = false;
 
@@ -18,7 +18,7 @@ axiosInstance.interceptors.request.use(
     return config;
   },
   async (error) => {
-    console.log({ requestError: error });
+    // console.log({ requestError: error });
     return error;
   }
 );
@@ -26,7 +26,7 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (resp) => resp,
   async (error) => {
-    console.log({ responseError: error });
+    // console.log({ responseError: error });
 
     if (error.response.status === 401 && !refresh) {
       refresh = true;
@@ -41,7 +41,7 @@ axiosInstance.interceptors.response.use(
           },
         }
       );
-      console.log({ response });
+      // console.log({ response });
 
       if (response.status === 200) {
         axios.defaults.headers.common[

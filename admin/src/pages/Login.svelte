@@ -8,27 +8,18 @@
     password = "";
 
   $: submit = async () => {
-    const response = await axiosInstance.post(
-      "/auth/login",
-      {
-        email,
-        password,
-      }
-      // {
-      //   headers: {
-      //     // Origin: "http://localhost:8009",
-      //     // "Access-Control-Request-Method": "POST",
-      //     "Access-Control-Allow-Origin": "http://localhost:3000",
-      //   },
-      // }
-    );
-    // console.log({ response });
+    const response = await axiosInstance.post("/auth/login", {
+      email,
+      password,
+    });
+    console.log({ response });
 
     if (response.status === 200) {
       axiosInstance.defaults.headers.common["Authorization"] =
-        `Bearer ${response.data.data.token}`;
+        `Bearer ${response.data.data.accessToken}`;
 
-      localStorage.setItem("authToken", response.data.data.token);
+      localStorage.setItem("authToken", response.data.data.accessToken);
+      localStorage.setItem("x-refresh-token", response.data.data.refreshToken);
 
       await push("/");
     }

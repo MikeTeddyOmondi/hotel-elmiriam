@@ -1,7 +1,7 @@
 <script>
   import axios from "axios";
   import { onMount } from "svelte";
-  import { roomStore } from "../stores/hotelStore";
+  import { roomStore } from "../stores/defaultStore";
   import { axiosInstance } from "../interceptors/axios";
   import BaseLayout from "../layouts/baseLayout.svelte";
   import Toast from "../components/Toast.svelte";

@@ -1,4 +1,5 @@
 <script>
+  // @ts-ignore
   import axios from "axios";
   import { onMount } from "svelte";
   // import {push} from "svelte-spa-router";
@@ -12,7 +13,6 @@
   let errMsg = "";
 
   onMount(async () => {
-    // let authToken = localStorage.getItem("authToken");
     const response = await axiosInstance.get("/hotel/customers");
     console.log({ allCustomers: response.data.data });
     customers = response.data.data.customers;
@@ -24,7 +24,8 @@
     id_number = "",
     phone_number = "";
 
-  $: customers;
+ // @ts-ignore
+   $: customers;
 
   $: submit = async () => {
     console.log({
@@ -43,15 +44,17 @@
       phone_number,
     });
 
-    if (response.response.status === 500) {
-      let resData = await response.response.data.data;
+    // @ts-ignore
+    if (response?.response?.status === 500) {
+      // @ts-ignore
+      let resData = await response?.response?.data?.data;
       console.log({ resData });
       isErr = true;
       errMsg = resData.messsage;
     }
 
     if (response.status === 201) {
-      console.log({ resData: await response.data.data });
+      console.log({ resData: await response?.data?.data });
 
       customers.push({
         firstname,

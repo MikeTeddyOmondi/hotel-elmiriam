@@ -2,12 +2,13 @@
   import axios from "axios";
   import { afterUpdate, onMount } from "svelte";
   import { link } from "svelte-spa-router";
-  import { userStore } from "../stores/userStore";
+  import { usersStore } from "../stores/defaultStore";
   import { axiosInstance } from "../interceptors/axios";
   import BaseLayout from "../layouts/baseLayout.svelte";
   import Toast from "../components/Toast.svelte";
+  import { waitFor } from "../utils/helpers";
 
-  let numEntries = $userStore.length;
+  let numEntries = $usersStore.length;
   let toastProps = {
     isErr: false,
     isSucc: false,
@@ -23,26 +24,11 @@
     id_number = "",
     password = "";
 
-  const waitFor = (delay) => {
-    new Promise((resolve) => setTimeout(resolve, delay));
-  };
-
-  $: toastProps,
-    (async () => {
-      console.log("the component just updated")
-      await waitFor(5000);
-      toastProps = {
-        isErr: false,
-        isSucc: false,
-        toastMsg: "",
-      };
-    })();
-
   onMount(async () => {
     const response = await axiosInstance.get("/auth/accounts");
     console.log({ allAccounts: response.data.data });
     let users = response.data.data.users;
-    userStore.update(() => [...users]);
+    usersStore.update(() => [...users]);
   });
 
   $: submit = async () => {
@@ -68,6 +54,15 @@
         isSucc: false,
         toastMsg: "Please enter all the fields!",
       };
+
+      // Delay for 5sec to autoremove the toast
+      setTimeout(() => {
+        toastProps = {
+          isErr: false,
+          isSucc: false,
+          toastMsg: "",
+        };
+      }, 5000);
       return;
     }
 
@@ -82,33 +77,59 @@
 
     // @ts-ignore
     if (response.name) {
-      let resData = await response.response.data.data;
+      // @ts-ignore
+      let responseData = await response.response.data;
+      console.log(responseData);
+
       toastProps = {
         isErr: true,
         isSucc: false,
-        toastMsg: resData.message,
+        toastMsg: responseData.message,
       };
       return;
     }
 
     if (response.status === 201) {
-      console.log({ resData: await response.data.data });
-      let user = await response.data.data;
+      try {
+        console.log({ resData: await response.data.data });
+        let user = await response.data.data.user;
 
-      toastProps = {
-        isErr: false,
-        isSucc: true,
-        toastMsg: `User: ${user.username} created successfully!`,
-      };
+        toastProps = {
+          isErr: false,
+          isSucc: true,
+          toastMsg: `User: ${user} created successfully!`,
+        };
 
-      userStore.update((currentData) => {
-        return [...currentData, user];
-      });
+        const usersFetchResponse = await axiosInstance.get("/auth/accounts");
 
-      username = "";
-      email = "";
-      password = "";
-      id_number = "";
+        let users = usersFetchResponse.data.data.users;
+        console.log({ users });
+        usersStore.update(() => [...users]);
+
+        username = "";
+        email = "";
+        password = "";
+        id_number = "";
+
+        // Delay for 5sec to autoremove the toast
+        setTimeout(() => {
+          toastProps = {
+            isErr: false,
+            isSucc: false,
+            toastMsg: "",
+          };
+        }, 5000);
+
+        return;
+      } catch (error) {
+        console.log(error);
+        console.log(error.message);
+        toastProps = {
+          isErr: true,
+          isSucc: false,
+          toastMsg: `${error.message}!`,
+        };
+      }
     }
   };
 </script>
@@ -126,6 +147,7 @@
 
     <!-- Add Users Form -->
     <Toast {toastProps} />
+
     <div class="row">
       <div class="col-xl-12 col-md-12 mb-4">
         <div class="card shadow">
@@ -260,7 +282,7 @@
                   </tr>
                 </thead>
                 <tbody>
-                  {#each $userStore as user}
+                  {#each $usersStore as user}
                     <tr>
                       <td>{user.username}</td>
                       <td>{user.email}</td>

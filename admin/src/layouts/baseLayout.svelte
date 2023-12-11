@@ -3,28 +3,93 @@
   import { onMount } from "svelte";
   import { link, push } from "svelte-spa-router";
   import { axiosInstance } from "../interceptors/axios";
+  import { useLocalStorage } from "../stores/sessionStore";
+  import Toast from "../components/Toast.svelte";
 
+  let url = ``;
   let username = "";
   let istoggledAdmin = false;
   let istoggledStock = false;
   let istoggledReports = false;
   let istoggledSettings = false;
 
-  onMount(async () => {
-    const response = await axiosInstance.get("/auth/user");
+  let toastProps = {
+    isErr: false,
+    isSucc: false,
+    toastMsg: "",
+  };
 
-    if (response.status === 200) {
-      username = response.data.data.user.username;
-    } else {
-      await push("/login");
+  let session = useLocalStorage("x-user-session", null);
+
+  onMount(async () => {
+    url = window.location.hash;
+    try {
+      const response = await axiosInstance.get("/auth/user");
+
+      if (response.status === 200) {
+        username = response.data.data.user.username;
+
+        session.update(() => JSON.stringify(response.data.data.user));
+        console.log($session);
+
+        toastProps = {
+          isErr: false,
+          isSucc: true,
+          toastMsg: `Hello ${username}!`,
+        };
+        // Delay for 5sec to autoremove the toast
+        setTimeout(() => {
+          toastProps = {
+            isErr: false,
+            isSucc: false,
+            toastMsg: "",
+          };
+        }, 5000);
+      } else {
+        toastProps = {
+          isErr: true,
+          isSucc: false,
+          // @ts-ignore
+          toastMsg: `${response.response.data.data.message} Redirecting to login page...`,
+        };
+
+        // Delay for 5sec to autoremove the toast
+        setTimeout(async () => {
+          toastProps = {
+            isErr: false,
+            isSucc: false,
+            toastMsg: "",
+          };
+          await push("/login");
+        }, 5000);
+      }
+    } catch (error) {
+      toastProps = {
+        isErr: true,
+        isSucc: false,
+        toastMsg: `${error.response.data.data.message}. Redirecting to login page...`,
+      };
+
+      // Delay for 5sec to autoremove the toast
+      setTimeout(async () => {
+        toastProps = {
+          isErr: false,
+          isSucc: false,
+          toastMsg: "",
+        };
+        await push("/login");
+      }, 5000);
     }
   });
 
   $: logout = async () => {
     await axiosInstance.post("/auth/logout", {});
 
-    axios.defaults.headers.common["Authorization"] = "";
+    axiosInstance.defaults.headers.common["Authorization"] = "";
     localStorage.removeItem("authToken");
+    localStorage.removeItem("x-refresh-token");
+
+    session.update(() => null);
 
     await push("/login");
   };
@@ -580,6 +645,10 @@
         <!-- End of Topbar -->
 
         <!-- Begin Page Content -->
+        <div class="container-fluid">
+          <Toast {toastProps} />
+        </div>
+
         <slot />
         <!-- /.container-fluid -->
       </div>
@@ -648,3 +717,11 @@
     </div>
   </div>
 </div>
+
+<style>
+  @media print {
+    .no-print {
+      display: none;
+    }
+  }
+</style>

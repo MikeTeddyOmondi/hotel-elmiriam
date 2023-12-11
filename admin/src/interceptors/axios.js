@@ -1,12 +1,12 @@
 import axios from "axios";
 
 // axios.defaults.baseURL = "http://localhost:8009/api";
-// axios.defaults.withCredentials = true;  
+// axios.defaults.withCredentials = true;
 
 export const axiosInstance = axios.create({
-  baseURL: "http://localhost:8009/api", 
+  baseURL: "http://localhost:8009/api",
   // withCredentials: true
-})
+});
 
 let refresh = false;
 
@@ -18,7 +18,7 @@ axiosInstance.interceptors.request.use(
     return config;
   },
   async (error) => {
-    console.log({ requestError: error });
+    // console.log({ requestError: error });
     return error;
   }
 );
@@ -35,17 +35,20 @@ axiosInstance.interceptors.response.use(
         "/auth/refresh",
         {},
         {
-          withCredentials: true,
+          // withCredentials: true,
+          headers: {
+            "x-refresh-token": `${localStorage.getItem("x-refresh-token")}`,
+          },
         }
       );
-      console.log({ response });
+      // console.log({ response });
 
       if (response.status === 200) {
         axios.defaults.headers.common[
           "Authorization"
-        ] = `Bearer ${response.data.data.token}`;
+        ] = `Bearer ${response.data.data.accessToken}`;
 
-        localStorage.setItem("authToken", response.data.data.token);
+        localStorage.setItem("authToken", response.data.data.accessToken);
 
         return axios(error.config);
       }

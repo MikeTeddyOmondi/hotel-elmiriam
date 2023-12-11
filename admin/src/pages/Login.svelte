@@ -1,6 +1,6 @@
 <script>
-  import axios from "axios";
-  import { push, link } from "svelte-spa-router";
+  import { push } from "svelte-spa-router";
+  import { link } from "svelte-spa-router";
   import { axiosInstance } from "../interceptors/axios";
   import LoginLayout from "../layouts/loginLayout.svelte";
 
@@ -12,14 +12,14 @@
       email,
       password,
     });
-    // console.log({ response });
+    console.log({ response });
 
     if (response.status === 200) {
-      axios.defaults.headers.common[
-        "Authorization"
-      ] = `Bearer ${response.data.data.token}`;
+      axiosInstance.defaults.headers.common["Authorization"] =
+        `Bearer ${response.data.data.accessToken}`;
 
-      localStorage.setItem("authToken", response.data.data.token);
+      localStorage.setItem("authToken", response.data.data.accessToken);
+      localStorage.setItem("x-refresh-token", response.data.data.refreshToken);
 
       await push("/");
     }

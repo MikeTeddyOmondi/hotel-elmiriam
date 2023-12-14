@@ -293,7 +293,7 @@
                       <td>
                         <a
                           class="small"
-                          href="/profiles/{user.username}"
+                          href="/users/{user._id}"
                           use:link
                         >
                           <i

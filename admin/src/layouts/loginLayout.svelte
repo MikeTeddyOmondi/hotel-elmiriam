@@ -23,7 +23,7 @@
         toastProps = {
           isErr: false,
           isSucc: true,
-          toastMsg: `Session found. Redirecting to dashboard...`,
+          toastMsg: `Session refreshed. Redirecting to dashboard...`,
         };
 
         // Delay for 5sec to autoremove the toast

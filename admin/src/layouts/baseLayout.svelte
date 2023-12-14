@@ -30,21 +30,21 @@
         username = response.data.data.user.username;
 
         session.update(() => JSON.stringify(response.data.data.user));
-        console.log($session);
+        // console.log($session);
 
-        toastProps = {
-          isErr: false,
-          isSucc: true,
-          toastMsg: `Hello ${username}!`,
-        };
-        // Delay for 5sec to autoremove the toast
-        setTimeout(() => {
-          toastProps = {
-            isErr: false,
-            isSucc: false,
-            toastMsg: "",
-          };
-        }, 5000);
+        // toastProps = {
+        //   isErr: false,
+        //   isSucc: true,
+        //   toastMsg: `Hello ${username}!`,
+        // };
+        // // Delay for 5sec to autoremove the toast
+        // setTimeout(() => {
+        //   toastProps = {
+        //     isErr: false,
+        //     isSucc: false,
+        //     toastMsg: "",
+        //   };
+        // }, 5000);
       } else {
         toastProps = {
           isErr: true,

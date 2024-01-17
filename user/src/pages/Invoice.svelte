@@ -22,11 +22,10 @@
     window.print();
   }
 
+  // console.log(capitalizeFirstLetter("hello"));
   function capitalizeFirstLetter(word) {
     return word.charAt(0).toUpperCase() + word.slice(1);
   }
-
-  console.log(capitalizeFirstLetter("hello"));
 
   onMount(async () => {
     try {
@@ -79,7 +78,41 @@
     html2pdf().set(options).from(elementToPrint).save();
   }
 
-  function initiateMpesaPayment() {}
+  async function initiateMpesaPayment() {
+    try {
+      const response = await axiosInstance.post(`hotel/mpesa-payment/${bookingId}`);
+      // @ts-ignore
+      if (!response.name) {
+        console.log(response);
+        console.log({ message: response.data.data.message });
+        toastProps = {
+          isErr: false,
+          isSucc: true,
+          toastMsg: `${response.data.data.message}`
+        };
+        return;
+      } else {
+        // @ts-ignore
+        throw new Error(`${response.response.data.data.message}`);
+      }
+    } catch (error) {
+      console.log(`Error initiating payment: ${error.message}`);
+      toastProps = {
+        isErr: true,
+        isSucc: false,
+        toastMsg: `Failed to initiate payment: ${error.message}.`,
+      };
+
+      setTimeout(async () => {
+        toastProps = {
+          isErr: false,
+          isSucc: false,
+          toastMsg: "",
+        };
+        await push("/hotel");
+      }, 5000);
+    }
+  }
 
   function notifyViaEmail() {}
 

@@ -1,6 +1,11 @@
 import { writable } from "svelte/store";
 
-export function useLocalStorage(key, initialValue) {
+export function useLocalStorage(key) {
+  const initialValue = {
+    id: "",
+    alias: "",
+  };
+
   let serialize = JSON.stringify;
   let deserialize = JSON.parse;
 
@@ -9,6 +14,7 @@ export function useLocalStorage(key, initialValue) {
 
   // if value exists return it otherwise use initial value
   let sessionStore = writable(storedValue ? storedValue : initialValue);
+  
   // subscribe to the store and update local storage when it changes
   sessionStore.subscribe((value) =>
     localStorage.setItem(key, serialize(value))

@@ -3,6 +3,7 @@
   import { push } from "svelte-spa-router";
   import { useLocalStorage } from "../stores/sessionStore";
   import Toast from "../components/Toast.svelte";
+  import { axiosInstance } from "../interceptors/axios";
 
   let url = ``;
 
@@ -12,30 +13,68 @@
     toastMsg: "",
   };
 
-  let session = useLocalStorage("x-user-session", null);
+  let session = useLocalStorage("x-user-session");
 
   onMount(async () => {
     url = window.location.hash;
     try {
-      // console.log($session)
+      console.log(
+        $session !== null &&
+          localStorage.getItem("authToken") !== "" &&
+          JSON.parse($session).alias === ""
+      );
 
-      if ($session !== null) {
+      if (
+        $session !== null &&
+        localStorage.getItem("authToken") !== "" &&
+        JSON.parse($session).alias === ""
+      ) {
+        const userInfoResponse = await axiosInstance.get("/auth/user");
+
+        if (userInfoResponse.status == 200) {
+        }
+
+        const user = userInfoResponse.data.data.user;
+
+        const { _id: id, username: alias } = user;
+
         toastProps = {
           isErr: false,
           isSucc: true,
-          toastMsg: `Session found. Redirecting to dashboard...`,
+          toastMsg: `Session found.`,
         };
 
-        // Delay for 5sec to autoremove the toast
         setTimeout(async () => {
           toastProps = {
             isErr: false,
-            isSucc: false,
-            toastMsg: ``,
+            isSucc: true,
+            toastMsg: `Redirecting to dashboard...`,
           };
           await push("/");
-        }, 5000);
+        }, 3000);
+
+        // // Delay for 5sec to autoremove the toast
+        // setTimeout(async () => {
+        //   toastProps = {
+        //     isErr: false,
+        //     isSucc: false,
+        //     toastMsg: ``,
+        //   };
+        //   await push("/");
+        // }, 1000);
       } else {
+        console.log($session);
+        if (typeof $session !== "object") {
+          localStorage.removeItem("x-user-session");
+          await push("/login");
+        }
+
+        console.log("Username: ", $session.alias);
+
+        if ($session.username === undefined || $session.username === "") {
+          localStorage.removeItem("x-user-session");
+          await push("/login");
+        }
         throw Error;
       }
     } catch (error) {
@@ -53,7 +92,7 @@
           toastMsg: "",
         };
         await push("/login");
-      }, 5000);
+      }, 3000);
     }
   });
 </script>

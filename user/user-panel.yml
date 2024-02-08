@@ -1,7 +1,7 @@
 version: "3.6"
 
 services:
-  hotel:
+  user_panel:
     container_name: hotel-elmiriam-user-panel
     image: ranckosolutionsinc/hotel-elmiriam-user-panel:v1.0.0
     # build: ./
@@ -14,8 +14,11 @@ services:
       - "5000:5000"
     networks:
       - hotel-elmiriam-network
+    labels:
+      - "traefik.http.routers.user_panel.rule=Host(`user_panel.localhost`)"  
+      - "traefik.http.services.user_panel.loadbalancer.server.port=5000"
     # depends_on:
-    #   - mongo
+    #   - reverse-proxy
 
 networks:
   hotel-elmiriam-network:

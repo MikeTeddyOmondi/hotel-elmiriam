@@ -1,5 +1,4 @@
 <script>
-  import axios from "axios";
   import { onMount } from "svelte";
   import { link, push } from "svelte-spa-router";
   import { axiosInstance } from "../interceptors/axios";
@@ -19,55 +18,100 @@
     toastMsg: "",
   };
 
-  let session = useLocalStorage("x-user-session", null);
+  const userInfo = {
+    id: "",
+    alias: "",
+  };
+
+  let session = useLocalStorage("x-user-session");
 
   onMount(async () => {
     url = window.location.hash;
     try {
-      const response = await axiosInstance.get("/auth/user");
+      if (
+        $session === null &&
+        typeof JSON.parse($session) !== typeof userInfo &&
+        JSON.parse($session).alias === "" &&
+        JSON.parse($session).alias !== undefined
+      ) {
+        localStorage.removeItem("authToken");
+        localStorage.removeItem("x-user-session");
+        localStorage.removeItem("x-refresh-token");
 
-      if (response.status === 200) {
-        username = response.data.data.user.username;
-
-        session.update(() => JSON.stringify(response.data.data.user));
-        console.log($session);
-
-        toastProps = {
-          isErr: false,
-          isSucc: true,
-          toastMsg: `Hello ${username}!`,
-        };
-        // Delay for 5sec to autoremove the toast
-        setTimeout(() => {
-          toastProps = {
-            isErr: false,
-            isSucc: false,
-            toastMsg: "",
-          };
-        }, 5000);
-      } else {
-        toastProps = {
-          isErr: true,
-          isSucc: false,
-          // @ts-ignore
-          toastMsg: `${response.response.data.data.message} Redirecting to login page...`,
-        };
-
-        // Delay for 5sec to autoremove the toast
-        setTimeout(async () => {
-          toastProps = {
-            isErr: false,
-            isSucc: false,
-            toastMsg: "",
-          };
-          await push("/login");
-        }, 5000);
+        await push("/login");
+        // throw new Error("Invalid session!");
+        return;
       }
+
+      // console.log("Session: ", $session);
+      // console.log("alias: ", JSON.parse($session).alias);
+      username = JSON.parse($session).alias;
+
+      // if (
+      //   JSON.parse($session).alias !== undefined ||
+      //   JSON.parse($session).alias !== ""
+      // ) {
+      //   // toastProps = {
+      //   //   isErr: false,
+      //   //   isSucc: true,
+      //   //   toastMsg: `Hello ${username}!`,
+      //   // };
+      //   // // Delay for 5sec to autoremove the toast
+      //   // setTimeout(() => {
+      //   //   toastProps = {
+      //   //     isErr: false,
+      //   //     isSucc: false,
+      //   //     toastMsg: "",
+      //   //   };
+      //   // }, 5000);
+      //   return;
+      // }
+      // throw new Error("Invalid session!");
+      // const response = await axiosInstance.get("/auth/user");
+
+      // if (response.status === 200) {
+      //   username = response.data.data.user.username;
+
+      //   session.update(() => JSON.stringify(response.data.data.user));
+
+      //   toastProps = {
+      //     isErr: false,
+      //     isSucc: true,
+      //     toastMsg: `Hello ${username}!`,
+      //   };
+      //   // Delay for 5sec to autoremove the toast
+      //   setTimeout(() => {
+      //     toastProps = {
+      //       isErr: false,
+      //       isSucc: false,
+      //       toastMsg: "",
+      //     };
+      //   }, 5000);
+      // } else {
+      //   session.update(() => null);
+      //   toastProps = {
+      //     isErr: true,
+      //     isSucc: false,
+      //     // @ts-ignore
+      //     toastMsg: `${response.response.data.data.message} Redirecting to login page!...`,
+      //   };
+
+      //   // Delay for 5sec to autoremove the toast
+      //   setTimeout(async () => {
+      //     toastProps = {
+      //       isErr: false,
+      //       isSucc: false,
+      //       toastMsg: "",
+      //     };
+      //     await push("/login");
+      //   }, 5000);
+      // }
     } catch (error) {
+      console.log({ error: error.message });
       toastProps = {
         isErr: true,
         isSucc: false,
-        toastMsg: `${error.response.data.data.message}. Redirecting to login page...`,
+        toastMsg: `Redirecting to login page...`,
       };
 
       // Delay for 5sec to autoremove the toast
@@ -89,7 +133,7 @@
     localStorage.removeItem("authToken");
     localStorage.removeItem("x-refresh-token");
 
-    session.update(() => null);
+    session.update(() => userInfo);
 
     await push("/login");
   };

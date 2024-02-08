@@ -5,6 +5,7 @@
   // import {push} from "svelte-spa-router";
   import BaseLayout from "../layouts/baseLayout.svelte";
   import { axiosInstance } from "../interceptors/axios";
+  import { link } from "svelte-spa-router";
 
   // const HOTEL_API_URI = "http://localhost:8003/ap1/v1";
 
@@ -196,7 +197,16 @@
                       <td>{customer.email}</td>
                       <td>{customer.id_number}</td>
                       <td>{customer.phone_number}</td>
-                      <td>Edit</td>
+                      <td><a
+                          class="small"
+                          href="/customers/{customer._id}"
+                          use:link
+                        >
+                          <i
+                            class="fas fa-edit fa-md fa-fw mr-2 text-gray-400"
+                          />
+                          Edit
+                        </a></td>
                     </tr>
                   {/each}
                 </tbody>

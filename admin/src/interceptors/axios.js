@@ -18,7 +18,7 @@ axiosInstance.interceptors.request.use(
     return config;
   },
   async (error) => {
-    // console.log({ requestError: error });
+    console.log({ requestError: error });
     return error;
   }
 );
@@ -41,7 +41,7 @@ axiosInstance.interceptors.response.use(
           },
         }
       );
-      // console.log({ response });
+      console.log({ response });
 
       if (response.status === 200) {
         axios.defaults.headers.common[

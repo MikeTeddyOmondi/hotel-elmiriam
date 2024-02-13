@@ -3,7 +3,7 @@ version: "3.8"
 services:
   admin_panel:
     container_name: hotel-elmiriam-admin-panel
-    image: ranckosolutionsinc/hotel-elmiriam-admin-panel:v1.0.0
+    image: ranckosolutionsinc/hotel-elmiriam-admin-panel:v1.0
     # build: ./
     restart: always
     # environment:
@@ -14,6 +14,9 @@ services:
       - "3000:3000"
     networks:
       - hotel-elmiriam-network
+    labels:
+      - "traefik.http.routers.admin_panel.rule=Host(`admin.hotel-elmariam.localhost`)"  
+      - "traefik.http.services.admin_panel.loadbalancer.server.port=3000"
     # depends_on:
     #   - mongo
 

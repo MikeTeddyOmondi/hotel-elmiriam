@@ -12,9 +12,9 @@ run-container:
 
 # Docker compose 
 run-compose:
-  docker compose -f proxy.yml up -d
+  docker compose -f proxy-service.yml up -d
 
 # Docker compose down
 run-compose-down:
-  docker compose -f proxy.yml down
+  docker compose -f proxy-service.yml down
 

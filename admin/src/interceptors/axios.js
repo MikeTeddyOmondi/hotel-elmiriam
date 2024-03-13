@@ -41,7 +41,7 @@ axiosInstance.interceptors.response.use(
           },
         }
       );
-      console.log({ response });
+      console.log({"AxiosResponse: ": response });
 
       if (response.status === 200) {
         axios.defaults.headers.common[
@@ -52,6 +52,8 @@ axiosInstance.interceptors.response.use(
 
         return axios(error.config);
       }
+      window.location.href = "/#/login";
+      return;
     }
     refresh = false;
     return error;

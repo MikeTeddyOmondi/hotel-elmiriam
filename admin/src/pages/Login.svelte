@@ -3,47 +3,14 @@
   import { link } from "svelte-spa-router";
   import { axiosInstance } from "../interceptors/axios";
   import LoginLayout from "../layouts/loginLayout.svelte";
-  import { useLocalStorage } from "../stores/sessionStore";
+  import { signIn, useLocalStorage } from "../stores/sessionStore";
 
-  let email = "",
-    password = "";
+  let email = "", password = "";
 
-  let session = useLocalStorage("x-user-session");
+  // let session = useLocalStorage("x-user-session");
 
   $: submit = async () => {
-    try {
-      const response = await axiosInstance.post("/auth/login", {
-        email,
-        password,
-      });
-      // console.log({ response });
-
-      if (response.status === 200) {
-        axiosInstance.defaults.headers.common["Authorization"] =
-          `Bearer ${response.data.data.accessToken}`;
-
-        localStorage.setItem("authToken", response.data.data.accessToken);
-        localStorage.setItem(
-          "x-refresh-token",
-          response.data.data.refreshToken
-        );
-
-        const userInfoResponse = await axiosInstance.get("/auth/user");
-        const user = userInfoResponse.data.data.user;
-
-        const { _id: id, username: alias } = user;
-        const userInfo = {
-          id,
-          alias,
-        };
-        // console.log(userInfo);
-
-        session.update(() => JSON.stringify(userInfo));
-        // console.log($session);
-
-        await push("/");
-      }
-    } catch (error) {}
+    await signIn(email, password);
   };
 </script>
 

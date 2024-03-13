@@ -1,4 +1,5 @@
 <script>
+  // @ts-ignore
   import axios from "axios";
   import { onMount } from "svelte";
   import { roomStore } from "../stores/defaultStore";
@@ -29,7 +30,8 @@
   let roomTypeSelected = "";
 
   // @ts-ignore
-  $: roomTypes;
+ // @ts-ignore
+   $: roomTypes;
 
   $: submit = async () => {
     if (roomNumber === "") {
@@ -59,7 +61,8 @@
 
     // @ts-ignore
     if (response.name) {
-      let resData = await response.response.data.data;
+      // @ts-ignore
+      let resData = await response?.response?.data.data;
       toastProps = {
         isErr: true,
         isSucc: false,
@@ -167,7 +170,7 @@
                       aria-controls="dataTable"
                       class="custom-select custom-select-sm form-control form-control-sm"
                     >
-                      <option value="{numEntries}">{numEntries}</option>
+                      <option value={numEntries}>{numEntries}</option>
                     </select>
                   </label>
                   entries
@@ -212,6 +215,9 @@
                             href="/#/edit-rooms/{room._id}"
                             use:link
                           >
+                            <i
+                              class="fas fa-edit fa-md fa-fw mr-2 text-gray-400"
+                            />
                             Edit
                           </a>
                         </td>

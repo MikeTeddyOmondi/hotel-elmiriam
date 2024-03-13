@@ -2,7 +2,7 @@
   import { onMount } from "svelte";
   import { link, push } from "svelte-spa-router";
   import { axiosInstance } from "../interceptors/axios";
-  import { useLocalStorage } from "../stores/sessionStore";
+  import { session, useLocalStorage } from "../stores/sessionStore";
   import Toast from "../components/Toast.svelte";
 
   let url = ``;
@@ -23,7 +23,8 @@
     alias: "",
   };
 
-  let session = useLocalStorage("x-user-session");
+  session;
+  // let session = useLocalStorage("x-user-session");
 
   onMount(async () => {
     url = window.location.hash;
@@ -108,32 +109,27 @@
       // }
     } catch (error) {
       console.log({ error: error.message });
-      toastProps = {
-        isErr: true,
-        isSucc: false,
-        toastMsg: `Redirecting to login page...`,
-      };
-
-      // Delay for 5sec to autoremove the toast
-      setTimeout(async () => {
-        toastProps = {
-          isErr: false,
-          isSucc: false,
-          toastMsg: "",
-        };
-        await push("/login");
-      }, 5000);
+      await push("/login");
     }
   });
 
   $: logout = async () => {
-    await axiosInstance.post("/auth/logout", {});
+    await axiosInstance.post(
+      "/auth/logout",
+      {},
+      {
+        // withCredentials: true,
+        headers: {
+          "x-refresh-token": `${localStorage.getItem("x-refresh-token")}`,
+        },
+      }
+    );
 
     axiosInstance.defaults.headers.common["Authorization"] = "";
     localStorage.removeItem("authToken");
     localStorage.removeItem("x-refresh-token");
 
-    session.update(() => userInfo);
+    session.update(() => JSON.stringify(userInfo));
 
     await push("/login");
   };

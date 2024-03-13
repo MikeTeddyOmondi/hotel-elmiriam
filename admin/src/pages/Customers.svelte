@@ -6,17 +6,17 @@
   import BaseLayout from "../layouts/baseLayout.svelte";
   import { axiosInstance } from "../interceptors/axios";
   import { link } from "svelte-spa-router";
+  import { customerStore, getAllCustomers } from "../stores/defaultStore";
+  import Toast from "../components/Toast.svelte";
 
-  // const HOTEL_API_URI = "http://localhost:8003/ap1/v1";
-
-  let customers = [];
-  let isErr = false;
-  let errMsg = "";
+  let toastProps = {
+    isErr: false,
+    isSucc: false,
+    toastMsg: "",
+  };
 
   onMount(async () => {
-    const response = await axiosInstance.get("/hotel/customers");
-    console.log({ allCustomers: response.data.data });
-    customers = response.data.data.customers;
+    await getAllCustomers();
   });
 
   let firstname = "",
@@ -24,9 +24,6 @@
     email = "",
     id_number = "",
     phone_number = "";
-
- // @ts-ignore
-   $: customers;
 
   $: submit = async () => {
     console.log({
@@ -37,6 +34,30 @@
       phone_number,
     });
 
+    if (
+      firstname === "" ||
+      lastname === "" ||
+      email === "" ||
+      id_number === "" ||
+      phone_number === ""
+    ) {
+      toastProps = {
+        isErr: true,
+        isSucc: false,
+        toastMsg: "Please enter all the fields!",
+      };
+
+      // Delay for 5sec to autoremove the toast
+      setTimeout(() => {
+        toastProps = {
+          isErr: false,
+          isSucc: false,
+          toastMsg: "",
+        };
+      }, 5000);
+      return;
+    }
+
     const response = await axiosInstance.post("/hotel/customers", {
       firstname,
       lastname,
@@ -46,30 +67,57 @@
     });
 
     // @ts-ignore
-    if (response?.response?.status === 500) {
+    if (response.name) {
       // @ts-ignore
-      let resData = await response?.response?.data?.data;
-      console.log({ resData });
-      isErr = true;
-      errMsg = resData.messsage;
+      let responseData = await response?.response?.data?.data;
+      console.log({ responseData });
+
+      toastProps = {
+        isErr: true,
+        isSucc: false,
+        toastMsg: responseData.message,
+      };
+      return;
     }
 
     if (response.status === 201) {
-      console.log({ resData: await response?.data?.data });
+      try {
+        console.log({ resData: await response?.data?.data });
+        let customer = await response?.data?.data?.customer;
 
-      customers.push({
-        firstname,
-        lastname,
-        email,
-        id_number,
-        phone_number,
-      });
+        toastProps = {
+          isErr: false,
+          isSucc: true,
+          toastMsg: `Customer: ${customer} created successfully!`,
+        };
 
-      firstname = "";
-      lastname = "";
-      email = "";
-      id_number = "";
-      phone_number = "";
+        await getAllCustomers();
+
+        firstname = "";
+        lastname = "";
+        email = "";
+        id_number = "";
+        phone_number = "";
+
+        // Delay for 5sec to autoremove the toast
+        setTimeout(() => {
+          toastProps = {
+            isErr: false,
+            isSucc: false,
+            toastMsg: "",
+          };
+        }, 5000);
+
+        return;
+      } catch (error) {
+        console.log(error);
+        console.log(error.message);
+        toastProps = {
+          isErr: true,
+          isSucc: false,
+          toastMsg: `${error.message}!`,
+        };
+      }
     }
   };
 </script>
@@ -85,17 +133,14 @@
       </button>
     </div>
 
-    <!-- Add Users Form -->
+    <!-- Add Customers Form -->
+    <Toast {toastProps} />
+
     <div class="row">
       <div class="col-xl-12 col-md-12 mb-4">
         <div class="card shadow">
           <div class="card-header py-3">
             <h6 class="m-0 font-weight-bold text-primary">Add Customers</h6>
-            <center>
-              {#if isErr}
-                <p class="text-danger"><b>{errMsg}</b></p>
-              {/if}
-            </center>
           </div>
           <div class="card-body">
             <form on:submit|preventDefault={submit} autocomplete="off">
@@ -108,6 +153,7 @@
                   id="firstname"
                   autocomplete="off"
                   bind:value={firstname}
+                  on:focus={() => (toastProps.isErr = false)}
                 />
               </div>
               <div class="form-group">
@@ -119,6 +165,7 @@
                   id="lastname"
                   autocomplete="off"
                   bind:value={lastname}
+                  on:focus={() => (toastProps.isErr = false)}
                 />
               </div>
               <div class="form-group">
@@ -130,6 +177,7 @@
                   id="email"
                   autocomplete="off"
                   bind:value={email}
+                  on:focus={() => (toastProps.isErr = false)}
                 />
               </div>
               <div class="form-group">
@@ -141,6 +189,7 @@
                   id="id_number"
                   autocomplete="off"
                   bind:value={id_number}
+                  on:focus={() => (toastProps.isErr = false)}
                 />
               </div>
               <div class="form-group">
@@ -152,6 +201,7 @@
                   id="phone_number"
                   autocomplete="off"
                   bind:value={phone_number}
+                  on:focus={() => (toastProps.isErr = false)}
                 />
               </div>
               <hr />
@@ -190,14 +240,15 @@
                   </tr>
                 </thead>
                 <tbody>
-                  {#each customers as customer}
+                  {#each $customerStore as customer}
                     <tr>
                       <td>{customer.firstname}</td>
                       <td>{customer.lastname}</td>
                       <td>{customer.email}</td>
                       <td>{customer.id_number}</td>
                       <td>{customer.phone_number}</td>
-                      <td><a
+                      <td
+                        ><a
                           class="small"
                           href="/customers/{customer._id}"
                           use:link
@@ -206,7 +257,8 @@
                             class="fas fa-edit fa-md fa-fw mr-2 text-gray-400"
                           />
                           Edit
-                        </a></td>
+                        </a></td
+                      >
                     </tr>
                   {/each}
                 </tbody>

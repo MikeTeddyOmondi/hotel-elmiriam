@@ -1,0 +1,22 @@
+services:
+  web:
+    container_name: hotel-elmiriam-website
+    image: ranckosolutionsinc/hotel-elmiriam-website:v1.0
+    # build: ./
+    restart: always
+    environment:
+      - PORT=4000
+    ports:
+      - "4000:3000"
+    networks:
+      - hotel-elmiriam-network
+    labels:
+      # - "traefik.enable=true"
+      - "traefik.http.routers.web.rule=Host(`www.hotel-elmariam.localhost`)"
+      - "traefik.http.services.web.loadbalancer.server.port=3000"
+
+networks:
+  hotel-elmiriam-network:
+    name: hotel-elmiriam
+    driver: bridge
+    external: true

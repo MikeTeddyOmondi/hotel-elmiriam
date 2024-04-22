@@ -15,7 +15,7 @@ services:
     networks:
       - hotel-elmiriam-network
     labels:
-      - "traefik.http.routers.user_panel.rule=Host(`user_panel.localhost`)"  
+      - "traefik.http.routers.user_panel.rule=Host(`user_panel.hotel-elmariam.localhost`)"  
       - "traefik.http.services.user_panel.loadbalancer.server.port=5000"
     # depends_on:
     #   - reverse-proxy

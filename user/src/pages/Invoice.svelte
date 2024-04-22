@@ -80,7 +80,9 @@
 
   async function initiateMpesaPayment() {
     try {
-      const response = await axiosInstance.post(`hotel/mpesa-payment/${bookingId}`);
+      const response = await axiosInstance.post(
+        `hotel/mpesa-payment/${bookingId}`
+      );
       // @ts-ignore
       if (!response.name) {
         console.log(response);
@@ -88,7 +90,7 @@
         toastProps = {
           isErr: false,
           isSucc: true,
-          toastMsg: `${response.data.data.message}`
+          toastMsg: `${response.data.data.message}`,
         };
         return;
       } else {
@@ -114,9 +116,43 @@
     }
   }
 
-  function notifyViaEmail() {}
+  async function notifyViaEmail() {}
 
-  function notifyViaSMS() {}
+  async function notifyViaSMS() {
+    try {
+      const response = await axiosInstance.post(`hotel/sms/${bookingId}`);
+      // @ts-ignore
+      if (!response.name) {
+        console.log(response);
+        console.log({ message: response.data.data.message });
+        toastProps = {
+          isErr: false,
+          isSucc: true,
+          toastMsg: `${response.data.data.message}`,
+        };
+        return;
+      } else {
+        // @ts-ignore
+        throw new Error(`${response.response.data.data.message}`);
+      }
+    } catch (error) {
+      console.log(`Error sending sms notification: ${error.message}`);
+      toastProps = {
+        isErr: true,
+        isSucc: false,
+        toastMsg: `Failed to send sms notification: ${error.message}.`,
+      };
+
+      setTimeout(async () => {
+        toastProps = {
+          isErr: false,
+          isSucc: false,
+          toastMsg: "",
+        };
+        await push("/hotel");
+      }, 5000);
+    }
+  }
 </script>
 
 <BaseLayout>

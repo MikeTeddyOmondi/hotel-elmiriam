@@ -10,6 +10,7 @@
   import Bookings from "./pages/Bookings.svelte";
   import RoomTypes from "./pages/RoomTypes.svelte";
   import Rooms from "./pages/Rooms.svelte";
+  import BarDrinks from "./pages/BarDrinks.svelte";
   import ForgotPassword from "./pages/ForgotPassword.svelte";
 
   const routes = {
@@ -22,6 +23,7 @@
     "/bookings": Bookings,
     "/room-types": RoomTypes,
     "/rooms": Rooms,
+    "/bar-drinks": BarDrinks,
     "/forgot-password": ForgotPassword,
   };
 </script>

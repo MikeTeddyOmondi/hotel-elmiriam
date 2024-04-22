@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   admin_panel:
     container_name: hotel-elmiriam-admin-panel

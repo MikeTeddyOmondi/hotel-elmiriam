@@ -12,7 +12,7 @@ services:
       - hotel-elmiriam-network
     labels:
       # - "traefik.enable=true"
-      - "traefik.http.routers.web.rule=Host(`www.hotel-elmariam.localhost`)"
+      - "traefik.http.routers.web.rule=Host(`www.rancko.labs`)"
       - "traefik.http.services.web.loadbalancer.server.port=3000"
 
 networks:

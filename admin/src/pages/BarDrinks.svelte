@@ -21,8 +21,8 @@
   let sellingPrice;
   let drinkName = "",
     drinkCode = "",
-    typeOfDrink = "",
-    uom = "",
+    typeOfDrink = null,
+    uom = null,
     file = "";
 
   onMount(async () => {
@@ -38,7 +38,9 @@
     if (
       drinkName === "" ||
       drinkCode === "" ||
+      typeOfDrink === null ||
       typeOfDrink === "" ||
+      uom === null ||
       uom === "" ||
       buyingPrice === "" ||
       sellingPrice === "" ||
@@ -92,6 +94,8 @@
         };
 
         form.reset();
+        typeOfDrink = null;
+        uom = null;
 
         // Delay for 5sec to autoremove the toast
         setTimeout(() => {
@@ -174,6 +178,7 @@
                   bind:value={typeOfDrink}
                   on:focus={() => (toastProps.isErr = false)}
                 >
+                  <option value={null}>Select type of drink</option>
                   <option value="spirit">Spirit</option>
                   <option value="beer">Beer</option>
                   <option value="rtd">Ready to Drink</option>
@@ -189,6 +194,7 @@
                   bind:value={uom}
                   on:focus={() => (toastProps.isErr = false)}
                 >
+                  <option value={null}>Select unit of measurement</option>
                   <option value="bottles">Bottles</option>
                   <option value="crates">Crates</option>
                 </select>

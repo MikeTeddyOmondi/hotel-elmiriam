@@ -53,7 +53,7 @@
             <h4>Hotel Elmiriam</h4>
           </a>
           <!-- Topbar Search -->
-          <form
+          <!-- <form
             class="d-none d-sm-inline-block form-inline ml-md-3 my-2 my-md-0 mw-100 navbar-search"
           >
             <div class="input-group">
@@ -70,14 +70,14 @@
                 </button>
               </div>
             </div>
-          </form>
+          </form> -->
 
           <!-- Topbar Navbar -->
           <ul class="navbar-nav ml-auto">
             <!-- Nav Item - Search Dropdown (Visible Only XS) -->
             <li class="nav-item dropdown no-arrow d-sm-none">
               <!-- svelte-ignore a11y-invalid-attribute -->
-              <a
+              <!-- <a
                 class="nav-link dropdown-toggle"
                 href="/#/"
                 id="searchDropdown"
@@ -87,9 +87,9 @@
                 aria-expanded="false"
               >
                 <i class="fas fa-search fa-fw" />
-              </a>
+              </a> -->
               <!-- Dropdown - Messages -->
-              <div
+              <!-- <div
                 class="dropdown-menu dropdown-menu-right p-3 shadow animated--grow-in"
                 aria-labelledby="searchDropdown"
               >
@@ -109,7 +109,7 @@
                     </div>
                   </div>
                 </form>
-              </div>
+              </div> -->
             </li>
 
             <!-- Nav Item - Alerts -->

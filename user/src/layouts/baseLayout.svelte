@@ -3,6 +3,7 @@
   import { onMount } from "svelte";
   import { link, push } from "svelte-spa-router";
   import { axiosInstance } from "../interceptors/axios";
+  import { drinkCartItems } from "../stores/barStore";
 
   let url = ``;
   let username = "";
@@ -281,6 +282,141 @@
                   class="dropdown-item text-center small text-gray-500"
                   href="/#/">Read More Messages</a
                 >
+              </div>
+            </li>
+
+            <!-- Cart Icon -->
+            <li class="nav-item dropdown no-arrow mx-1">
+              <!-- svelte-ignore a11y-invalid-attribute -->
+              <a
+                class="nav-link dropdown-toggle"
+                href="/#/"
+                id="messagesDropdown"
+                role="button"
+                data-toggle="dropdown"
+                aria-haspopup="true"
+                aria-expanded="false"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="16"
+                  height="16"
+                  fill="currentColor"
+                  class="bi bi-cart"
+                  viewBox="0 0 16 16"
+                >
+                  <path
+                    d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M3.102 4l1.313 7h8.17l1.313-7zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4m7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2m7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2"
+                  />
+                </svg>
+                <!-- Counter - Messages -->
+                {#if $drinkCartItems.length !== 0}
+                  <span class="badge badge-danger badge-counter"
+                    >{$drinkCartItems.length}</span
+                  >
+                {:else}
+                  <span class="badge badge-danger badge-counter"></span>
+                {/if}
+              </a>
+              <!-- Dropdown - Messages -->
+              <div
+                class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                aria-labelledby="messagesDropdown"
+              >
+                <h6 class="dropdown-header">Cart</h6>
+                {#if $drinkCartItems.length === 0}
+                  <!-- svelte-ignore a11y-invalid-attribute -->
+                  <a
+                    class="dropdown-item text-center small text-gray-500"
+                    href="/#/bar">Empty Cart...</a
+                  >
+                {:else}
+                  {#each $drinkCartItems as cartItem}
+                    <!-- svelte-ignore a11y-invalid-attribute -->
+                    <a
+                      class="dropdown-item d-flex align-items-center"
+                      href="/#/"
+                    >
+                      <div class="dropdown-list-image mr-3">
+                        <img
+                          class="rounded-circle"
+                          src={cartItem.imageUrl}
+                          alt={cartItem.drinkCode}
+                        />
+                        <div
+                          class="status-indicator
+                        {cartItem.inStock ? 'bg-success' : 'bg-danger'}"
+                        />
+                      </div>
+                      <div class="font-weight-bold">
+                        <div class="text-truncate">
+                          {cartItem.drinkName}
+                        </div>
+                        <div class="small text-gray-500">{cartItem.amount}</div>
+                      </div>
+                    </a>
+                  {/each}
+                  <!-- svelte-ignore a11y-invalid-attribute -->
+                  <!-- <a class="dropdown-item d-flex align-items-center" href="/#/">
+                  <div class="dropdown-list-image mr-3">
+                    <img
+                      class="rounded-circle"
+                      src="img/undraw_profile_2.svg"
+                      alt="..."
+                    />
+                    <div class="status-indicator" />
+                  </div>
+                  <div>
+                    <div class="text-truncate">
+                      I have the photos that you ordered last month, how would
+                      you like them sent to you?
+                    </div>
+                    <div class="small text-gray-500">Jae Chun · 1d</div>
+                  </div>
+                </a> -->
+                  <!-- svelte-ignore a11y-invalid-attribute -->
+                  <!-- <a class="dropdown-item d-flex align-items-center" href="/#/">
+                  <div class="dropdown-list-image mr-3">
+                    <img
+                      class="rounded-circle"
+                      src="img/undraw_profile_3.svg"
+                      alt="..."
+                    />
+                    <div class="status-indicator bg-warning" />
+                  </div>
+                  <div>
+                    <div class="text-truncate">
+                      Last month's report looks great, I am very happy with the
+                      progress so far, keep up the good work!
+                    </div>
+                    <div class="small text-gray-500">Morgan Alvarez · 2d</div>
+                  </div>
+                </a> -->
+                  <!-- svelte-ignore a11y-invalid-attribute -->
+                  <!-- <a class="dropdown-item d-flex align-items-center" href="/#/">
+                  <div class="dropdown-list-image mr-3">
+                    <img
+                      class="rounded-circle"
+                      src="https://source.unsplash.com/Mv9hjnEUHR4/60x60"
+                      alt="..."
+                    />
+                    <div class="status-indicator bg-success" />
+                  </div>
+                  <div>
+                    <div class="text-truncate">
+                      Am I a good boy? The reason I ask is because someone told
+                      me that people say this to all dogs, even if they aren't
+                      good...
+                    </div>
+                    <div class="small text-gray-500">Chicken the Dog · 2w</div>
+                  </div>
+                </a> -->
+                  <!-- svelte-ignore a11y-invalid-attribute -->
+                  <a
+                    class="dropdown-item text-center small text-gray-500"
+                    href="/#/drink-cart">More Cart Information...</a
+                  >
+                {/if}
               </div>
             </li>
 

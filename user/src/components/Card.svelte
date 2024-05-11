@@ -29,7 +29,7 @@
     <h5 class="card-title">{drinkName}</h5>
     <!-- <p class="card-text">Bar drink details.</p> -->
     <button
-      class="btn btn-primary align-items-center justify-content-between"
+      class="btn btn-primary align-content-center justify-content-between"
       on:click={() => addToDrinkCart(barDrink)}
       >
       <!-- {inStock ? '' : 'disabled'}" -->

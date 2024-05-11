@@ -309,7 +309,7 @@
                     d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M3.102 4l1.313 7h8.17l1.313-7zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4m7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2m7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2"
                   />
                 </svg>
-                <!-- Counter - Messages -->
+                <!-- Cart - Items Amount -->
                 {#if $drinkCartItems.length !== 0}
                   <span class="badge badge-danger badge-counter"
                     >{$drinkCartItems.length}</span
@@ -318,7 +318,7 @@
                   <span class="badge badge-danger badge-counter"></span>
                 {/if}
               </a>
-              <!-- Dropdown - Messages -->
+              <!-- Cart - Items List -->
               <div
                 class="dropdown-list dropdown-menu dropdown-menu-right shadow animated--grow-in"
                 aria-labelledby="messagesDropdown"
@@ -333,10 +333,7 @@
                 {:else}
                   {#each $drinkCartItems as cartItem}
                     <!-- svelte-ignore a11y-invalid-attribute -->
-                    <a
-                      class="dropdown-item d-flex align-items-center"
-                      href="/#/"
-                    >
+                    <div class="dropdown-item d-flex align-items-center">
                       <div class="dropdown-list-image mr-3">
                         <img
                           class="rounded-circle"
@@ -349,12 +346,33 @@
                         />
                       </div>
                       <div class="font-weight-bold">
-                        <div class="text-truncate">
-                          {cartItem.drinkName}
+                        <div
+                          class="d-flex flex-row align-items-center justify-content-center"
+                        >
+                          <div class="text-truncate">{cartItem.drinkName}</div>
+                          <div class="text-danger px-2 float-end">
+                            <!-- <button
+                              class="btn btn-outline-danger"
+                              on:click={() => removeFromDrinkCart(cartItem._id)}
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="16"
+                                height="16"
+                                fill="currentColor"
+                                class="bi bi-trash3-fill"
+                                viewBox="0 0 16 16"
+                              >
+                                <path
+                                  d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5M4.5 5.029l.5 8.5a.5.5 0 1 0 .998-.06l-.5-8.5a.5.5 0 1 0-.998.06m6.53-.528a.5.5 0 0 0-.528.47l-.5 8.5a.5.5 0 0 0 .998.058l.5-8.5a.5.5 0 0 0-.47-.528M8 4.5a.5.5 0 0 0-.5.5v8.5a.5.5 0 0 0 1 0V5a.5.5 0 0 0-.5-.5"
+                                />
+                              </svg>
+                            </button> -->
+                          </div>
                         </div>
                         <div class="small text-gray-500">{cartItem.amount}</div>
                       </div>
-                    </a>
+                    </div>
                   {/each}
                   <!-- svelte-ignore a11y-invalid-attribute -->
                   <!-- <a class="dropdown-item d-flex align-items-center" href="/#/">

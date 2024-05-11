@@ -2,7 +2,7 @@
 // @ts-nocheck
 
   export let searchTerm;
-  console.log(searchTerm);
+  // console.log(searchTerm);
 
   let val = "";
   let timer;

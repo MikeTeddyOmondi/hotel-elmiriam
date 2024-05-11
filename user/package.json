@@ -17,5 +17,8 @@
     "svelte-chartjs": "^3.1.5",
     "svelte-spa-router": "^4.0.1",
     "vite": "^5.1.1"
+  },
+  "dependencies": {
+    "svelte-skeleton-loader": "^0.1.4"
   }
 }

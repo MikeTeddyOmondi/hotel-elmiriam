@@ -1,4 +1,6 @@
-<script>
+<script lang="js">
+  // @ts-nocheck
+
   import axios from "axios";
   import { onMount } from "svelte";
   import { link } from "svelte-spa-router";
@@ -8,6 +10,8 @@
   import BaseLayout from "../layouts/baseLayout.svelte";
   import { drinkStore, getBarDrinks } from "../stores/barStore";
 
+  import Skeleton from "svelte-skeleton-loader";
+
   let toastProps = {
     isErr: false,
     isSucc: false,
@@ -16,9 +20,11 @@
 
   let searchTerm;
 
-  onMount(async () => {
-    await getBarDrinks();
-  });
+  const promise = getBarDrinks();
+
+  // onMount(async () => {
+  //   await getBarDrinks();
+  // });
 
   $: submit = async () => {
     // console.log({
@@ -138,11 +144,45 @@
 
         <Search {searchTerm} />
 
-        <div class="card-columns">
-          {#each $drinkStore as barDrink}
-            <Card {barDrink} />
-          {/each}
-        </div>
+        {#await promise}
+          <div class="card-columns">
+            <Skeleton
+              class="col-lg-9 mb-4"
+              width="100vW"
+              height="100vH"
+              count={10}
+            />
+            <Skeleton
+              class="col-lg-9 mb-4"
+              width="100vW"
+              height="100vH"
+              count={10}
+            />
+            <Skeleton
+              class="col-lg-9 mb-4"
+              width="100vW"
+              height="100vH"
+              count={10}
+            />
+          </div>
+        {:then drinks}
+          <div class="card-columns">
+            {#each $drinkStore as barDrink}
+              <Card {barDrink} />
+            {/each}
+          </div>
+        {:catch error}
+          <div class="row">
+            <div class="col-lg-12 mb-1">
+              <div
+                class="alert alert-danger alert-dismissable text-gray shadow animated--grow-in"
+              >
+                <!-- <button class="close" data-dismiss="alert">&times;</button> -->
+                <b> An error occurred while fetching drinks... </b>
+              </div>
+            </div>
+          </div>
+        {/await}
       </div>
 
       <!-- Drink Stats -->

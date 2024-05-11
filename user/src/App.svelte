@@ -12,6 +12,7 @@
   import RoomTypes from "./pages/RoomTypes.svelte";
   import Rooms from "./pages/Rooms.svelte";
   import ForgotPassword from "./pages/ForgotPassword.svelte";
+  import DrinkCart from './pages/DrinkCart.svelte';
 
 	const routes = {
 		'/': Home,
@@ -21,6 +22,7 @@
     '/invoices/bookings/:id': Invoice,
     '/rooms': Rooms,
     '/customers': Customers,
+    '/drink-cart': DrinkCart,
     '/restaurant': Restaurant,
 		'/forgot-password': ForgotPassword,
 	};

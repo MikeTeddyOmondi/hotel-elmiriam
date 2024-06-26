@@ -25,8 +25,8 @@
   }, initialTotal);
 
   // Checkout
-  async function initiateBarSale() {
-    console.log("mpesa checkout");
+  async function createBarSale() {
+    console.log("Creating bar sale");
     try {
       const response = await axiosInstance.post(`bar/sales`);
       // @ts-ignore
@@ -44,11 +44,11 @@
         throw new Error(`${response.response.data.data.message}`);
       }
     } catch (error) {
-      console.log(`Error initiating payment: ${error.message}`);
+      console.log(`Error creating bar sale: ${error.message}`);
       toastProps = {
         isErr: true,
         isSucc: false,
-        toastMsg: `Failed to initiate payment: ${error.message}.`,
+        toastMsg: `Failed to create bar sale: ${error.message}.`,
       };
 
       setTimeout(async () => {
@@ -65,7 +65,7 @@
   async function lipaNaMpesa(barSaleId) {
     console.log("mpesa checkout", barSaleId);
     try {
-      const response = await axiosInstance.post(`bar/sales/lipa-mpesa/`);
+      const response = await axiosInstance.post(`bar/sales/lipa-mpesa/{barSaleId}`);
       // @ts-ignore
       if (!response.name) {
         console.log(response);
@@ -226,9 +226,9 @@
 
                   <button
                     class="btn btn-primary my-4 w-100 d-flex align-content-center justify-content-center"
-                    on:click={() => initiateBarSale()}
+                    on:click={() => createBarSale()}
                   >
-                    Checkout
+                    Create Bar Sale
                   </button>
                   <!-- <button
                     class="btn btn-outline-success my-4 w-100 d-flex align-content-center justify-content-center"

@@ -24,7 +24,7 @@
     phone_number = "";
 
   onMount(async () => {
-    const customer = await getOneCustomer(customerId);
+    // const customer = await getOneCustomer(customerId);
     // customerDetails.update(() => customer);
     $customerDetails = await getOneCustomer(customerId);
     // console.log({ $customerDetails });

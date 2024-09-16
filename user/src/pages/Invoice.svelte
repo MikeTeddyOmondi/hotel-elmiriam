@@ -200,7 +200,7 @@
                     <div class="mb-4">
                       <div class="text-sm-right">
                         <h4 class="invoice-color mb-2 mt-md-2">
-                          Invoice #{$bookingDetails._id?.slice(0, 7)}
+                          Invoice #{$bookingDetails._id?.slice(0, 7) ?? ".."}
                         </h4>
                         <ul class="list list-unstyled mb-0">
                           <li>
